@@ -1,0 +1,88 @@
+{
+  "$schemaDescription": "ImpactVault framework-neutral design tokens; proposed sizes and typography",
+  "color": {
+    "forest": "#164D42",
+    "sage": "#91AD9D",
+    "ivory": "#F8F8F3",
+    "gold": "#D7B36B",
+    "ink": "#20342F"
+  },
+  "semantic": {
+    "background": "ivory",
+    "text": "ink",
+    "primary": "forest",
+    "onPrimary": "ivory",
+    "accent": "gold",
+    "softSurface": "sage"
+  },
+  "typography": {
+    "family": [
+      "Inter",
+      "system-ui",
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "Segoe UI",
+      "sans-serif"
+    ],
+    "body": {
+      "sizePx": 16,
+      "lineHeight": 1.5,
+      "weight": 400
+    },
+    "small": {
+      "sizePx": 14,
+      "lineHeight": 1.5
+    },
+    "heading": {
+      "mobilePx": 28,
+      "desktopPx": 36,
+      "lineHeight": 1.2
+    },
+    "balance": {
+      "mobilePx": 32,
+      "desktopPx": 40,
+      "tabularNumerals": true
+    }
+  },
+  "spacingPx": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48,
+    64
+  ],
+  "radiusPx": {
+    "card": 16,
+    "control": 12
+  },
+  "layout": {
+    "maxWidthPx": 1200,
+    "breakpointsPx": {
+      "tablet": 768,
+      "desktop": 1024
+    },
+    "gutterPx": {
+      "mobile": 16,
+      "tablet": 24,
+      "desktop": 32
+    }
+  },
+  "interaction": {
+    "minimumTargetPx": 44,
+    "transitionMs": 150,
+    "respectReducedMotion": true
+  },
+  "pools": [
+    {
+      "id": "hunger-relief",
+      "name": "Hunger Relief"
+    },
+    {
+      "id": "kalimantan-forest-fire-relief",
+      "name": "Kalimantan Forest Fire Relief"
+    }
+  ]
+}

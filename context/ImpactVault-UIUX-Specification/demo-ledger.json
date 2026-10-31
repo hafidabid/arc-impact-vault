@@ -1,0 +1,105 @@
+{
+  "environment": "synthetic-demo",
+  "token": "USDC",
+  "assumedDecimals": 6,
+  "network": null,
+  "note": "Illustrative records only; no real transfers or yield. Fees funded separately.",
+  "fundingLotId": "demo-sponsor-lot-001",
+  "positionId": "demo-position-001",
+  "poolId": "hunger-relief",
+  "transactions": [
+    {
+      "operationId": "demo-001",
+      "type": "deposit",
+      "status": "illustrative-confirmed",
+      "entries": [
+        {
+          "account": "principal_custody_asset",
+          "debitUnits": 3000000,
+          "creditUnits": 0
+        },
+        {
+          "account": "user_principal_payable",
+          "debitUnits": 0,
+          "creditUnits": 3000000
+        }
+      ]
+    },
+    {
+      "operationId": "demo-002",
+      "type": "sponsor_funding",
+      "status": "illustrative-confirmed",
+      "entries": [
+        {
+          "account": "sponsor_custody_asset",
+          "debitUnits": 200000,
+          "creditUnits": 0
+        },
+        {
+          "account": "unassigned_sponsor_funds",
+          "debitUnits": 0,
+          "creditUnits": 200000
+        }
+      ]
+    },
+    {
+      "operationId": "demo-003",
+      "type": "attribution",
+      "status": "illustrative-confirmed",
+      "entries": [
+        {
+          "account": "unassigned_sponsor_funds",
+          "debitUnits": 200000,
+          "creditUnits": 0
+        },
+        {
+          "account": "user_attributed_donation_proceeds",
+          "debitUnits": 0,
+          "creditUnits": 200000
+        }
+      ]
+    },
+    {
+      "operationId": "demo-004",
+      "type": "allocation",
+      "status": "illustrative-confirmed",
+      "entries": [
+        {
+          "account": "user_attributed_donation_proceeds",
+          "debitUnits": 200000,
+          "creditUnits": 0
+        },
+        {
+          "account": "hunger_donation_payable",
+          "debitUnits": 0,
+          "creditUnits": 200000
+        }
+      ]
+    },
+    {
+      "operationId": "demo-005",
+      "type": "settlement",
+      "status": "illustrative-confirmed",
+      "entries": [
+        {
+          "account": "hunger_donation_payable",
+          "debitUnits": 200000,
+          "creditUnits": 0
+        },
+        {
+          "account": "sponsor_custody_asset",
+          "debitUnits": 0,
+          "creditUnits": 200000
+        }
+      ]
+    }
+  ],
+  "endingBalancesUnits": {
+    "principalCustodyAsset": 3000000,
+    "userPrincipalPayable": 3000000,
+    "sponsorCustodyAsset": 0,
+    "availableAttributedProceeds": 0,
+    "hungerDonationPayable": 0,
+    "historicalConfirmedDonations": 200000
+  }
+}

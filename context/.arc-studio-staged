@@ -1,0 +1,13 @@
+# Files staged by `arc-studio run --file`. Arc Studio removes only the paths listed here.
+ImpactVault-UIUX-Specification/01-product-and-scope.md
+ImpactVault-UIUX-Specification/02-design-system.md
+ImpactVault-UIUX-Specification/03-navigation-and-flows.md
+ImpactVault-UIUX-Specification/04-public-and-user-pages.md
+ImpactVault-UIUX-Specification/05-pools-and-evidence.md
+ImpactVault-UIUX-Specification/06-admin-and-ledger.md
+ImpactVault-UIUX-Specification/07-accounting-and-safeguards.md
+ImpactVault-UIUX-Specification/08-content-and-acceptance.md
+ImpactVault-UIUX-Specification/README.md
+ImpactVault-UIUX-Specification/SOURCE-NOTES.md
+ImpactVault-UIUX-Specification/demo-ledger.json
+ImpactVault-UIUX-Specification/design-tokens.json
