@@ -53,7 +53,7 @@ const FOCUS_AREAS = [
 ]
 
 export default function HomePage() {
-  usePageTitle('Give the interest, keep the money')
+  usePageTitle('Give the impact, your money still')
   const { snapshot, rows } = useCauses()
   const now = useNow()
   const vault = snapshot.status === 'ready' ? snapshot.data : undefined

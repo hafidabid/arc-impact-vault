@@ -57,9 +57,9 @@ function StepOne() {
           <p className="t-small mt-1">Everything the strategy earns above total deposits. It is reserved for approved causes and never credited to individual depositors.</p>
         </div>
       </div>
-      <Callout tone="warn" title="Before you continue">
+      {/* <Callout tone="warn" title="Before you continue">
         {COPY.riskLine} If the strategy returns less than total deposits, every depositor is repaid pro rata.
-      </Callout>
+      </Callout> */}
     </div>
   )
 }
