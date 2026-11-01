@@ -37,6 +37,10 @@ body {
   outline: 2px solid var(--forest);
   outline-offset: 2px;
 }
+/* <main> only receives programmatic focus after navigation; it is not interactive, so no ring around the page. */
+main:focus-visible {
+  outline: none;
+}
 .on-forest:focus-visible {
   outline-color: var(--ivory);
 }
@@ -87,7 +91,7 @@ body {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.035);
+    transform: scale(1.06);
   }
 }
 
@@ -97,7 +101,7 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(-4%, 3%, 0) scale(1.12);
+    transform: translate3d(-10%, 8%, 0) scale(1.25);
   }
 }
 
@@ -107,7 +111,7 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(5%, -4%, 0) scale(1.1);
+    transform: translate3d(12%, -9%, 0) scale(1.2);
   }
 }
 
@@ -115,20 +119,68 @@ body {
 @keyframes field-slow {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
   }
-  50% {
-    transform: translate3d(2.5%, -2%, 0) rotate(6deg);
+  33% {
+    transform: translate3d(5%, -4%, 0) rotate(9deg) scale(1.05);
+  }
+  66% {
+    transform: translate3d(-2%, 4%, 0) rotate(-5deg) scale(0.98);
   }
 }
 
 @keyframes field-fast {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  33% {
+    transform: translate3d(-6%, 4%, 0) rotate(-12deg) scale(1.06);
+  }
+  66% {
+    transform: translate3d(3%, -3%, 0) rotate(7deg) scale(0.97);
+  }
+}
+
+/* The hero gradient flows slowly so the panel feels lit from within. Ends where it starts. */
+@keyframes aurora {
+  0%,
+  100% {
+    background-position: 0% 50%;
   }
   50% {
-    transform: translate3d(-3%, 2.5%, 0) rotate(-8deg);
+    background-position: 100% 50%;
+  }
+}
+
+/* A short bright dash travels around each ring. The dash pattern repeats every 1 unit, so -1 equals the start. */
+@keyframes ring-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+/* Seeds drift up and sway. Decorative: invisible at rest, so reduced-motion visitors see none. */
+@keyframes float-up {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translate3d(var(--sway, 24px), -55vh, 0);
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(calc(var(--sway, 24px) * -0.6), -115vh, 0);
+    opacity: 0;
   }
 }
 

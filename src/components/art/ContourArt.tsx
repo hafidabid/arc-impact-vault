@@ -21,9 +21,12 @@ export function ContourArt({
   className,
   stroke = '#91AD9D',
   animate = false,
+  flow,
 }: {
   className?: string
   stroke?: string
+  /** Colour of a bright dash that travels around every ring. Omit for static rings. */
+  flow?: string
   /** Draws the rings inward-out on mount, then breathes them slowly. */
   animate?: boolean
 }) {
@@ -41,6 +44,20 @@ export function ContourArt({
           />
         ))}
       </g>
+      {flow ? (
+        <g stroke={flow} strokeWidth="1.8" strokeLinecap="round">
+          {RINGS.map((d, i) => (
+            <path
+              key={d}
+              d={d}
+              pathLength={1}
+              strokeDasharray="0.06 0.94"
+              className="animate-ring-flow"
+              style={{ animationDuration: `${12 + i * 3}s`, animationDelay: `-${i * 4}s` }}
+            />
+          ))}
+        </g>
+      ) : null}
     </svg>
   )
 }
@@ -60,17 +77,40 @@ export function HeroGlow({ className }: { className?: string }) {
  * page has depth without anything competing with the content. Kept far below text contrast — a wash this
  * faint moves body text from 12.37:1 to 11.85:1, which is still well clear of AA.
  */
+/** Fixed positions so the seeds never reshuffle between renders. [left %, size px, duration s, delay s, sway px, gold?] */
+const SEEDS: [number, number, number, number, number, boolean][] = [
+  [6, 6, 24, 0, 28, true],
+  [14, 4, 30, 6, -22, false],
+  [22, 8, 27, 12, 34, true],
+  [31, 5, 33, 3, -30, false],
+  [40, 7, 25, 17, 26, true],
+  [48, 4, 31, 9, -18, false],
+  [57, 6, 28, 21, 30, true],
+  [64, 8, 35, 5, -34, false],
+  [72, 5, 26, 14, 22, true],
+  [80, 7, 32, 1, -26, false],
+  [88, 4, 29, 19, 20, true],
+  [94, 6, 34, 8, -24, false],
+]
+
 export function ContourField({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cx('pointer-events-none fixed inset-0 -z-10 overflow-hidden', className)}>
-      <div className="absolute -left-[18%] top-[-12%] h-[70vmax] w-[70vmax] animate-field-slow will-change-transform opacity-[0.5]">
-        <ContourArt className="h-full w-full" />
+      <div className="absolute -left-[18%] top-[-12%] h-[70vmax] w-[70vmax] animate-field-slow will-change-transform opacity-[0.6]">
+        <ContourArt className="h-full w-full" flow="#D7B36B" />
       </div>
-      <div className="absolute -right-[22%] bottom-[-18%] h-[80vmax] w-[80vmax] animate-field-fast will-change-transform opacity-[0.35]">
-        <ContourArt className="h-full w-full" stroke="#D7B36B" />
+      <div className="absolute -right-[22%] bottom-[-18%] h-[80vmax] w-[80vmax] animate-field-fast will-change-transform opacity-[0.45]">
+        <ContourArt className="h-full w-full" stroke="#D7B36B" flow="#91AD9D" />
       </div>
+      {SEEDS.map(([left, size, dur, delay, sway, gold]) => (
+        <span
+          key={`${left}-${size}`}
+          className={cx('absolute -bottom-3 animate-float-up rounded-full will-change-transform', gold ? 'bg-gold' : 'bg-sage')}
+          style={{ left: `${left}%`, width: size, height: size, '--dur': `${dur}s`, '--delay': `${delay}s`, '--sway': `${sway}px` } as React.CSSProperties}
+        />
+      ))}
       {/* Keeps the field from reading as texture over the content column. */}
-      <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_40%,rgba(248,248,243,0.82),rgba(248,248,243,0.35))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(70%_60%_at_50%_40%,rgba(248,248,243,0.72),rgba(248,248,243,0.2))]" />
     </div>
   )
 }

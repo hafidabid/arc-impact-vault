@@ -1,4 +1,4 @@
-import { ArrowRight, Landmark, Sprout, HandHeart } from 'lucide-react'
+import { ArrowRight, Landmark, Sprout, HandHeart, ShieldCheck, Eye, Target } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { PHASE_LABEL } from '@/chain/derive'
 import { useNow } from '@/chain/hooks'
@@ -17,46 +17,112 @@ const STEPS = [
   {
     icon: Landmark,
     title: 'Deposit USDC',
-    body: 'Deposit before the deposit deadline. Your principal is recorded on-chain under your wallet and invested by the vault in its yield strategy.',
+    body: 'Put in any amount before the deposit deadline. Your deposit stays recorded under your wallet.',
   },
   {
     icon: Sprout,
-    title: 'The vault earns yield',
-    body: 'Until maturity the strategy may earn yield for the vault as a whole. It is never credited to individual depositors.',
+    title: 'The vault earns interest',
+    body: 'While it is locked, your deposit earns yield for the vault as a whole. It never touches your principal.',
   },
   {
     icon: HandHeart,
-    title: 'Principal back, yield donated',
-    body: 'At maturity you withdraw your principal. The vault owner sends the realised yield to an approved cause, and every transfer is public.',
+    title: 'You get your money back',
+    body: 'At maturity you withdraw your full deposit. The interest goes to a cause, and you can follow it on-chain.',
+  },
+]
+
+const PROMISES = [
+  { icon: ShieldCheck, title: 'Your deposit comes back', body: 'Principal is paid out first, in full, as long as the yield strategy does not lose value.' },
+  { icon: Target, title: 'Only the interest is given', body: 'Yield can only go to causes the vault owner approved on-chain beforehand.' },
+  { icon: Eye, title: 'Every transfer is public', body: 'Deposits, approvals and donations are all on-chain events anyone can check.' },
+]
+
+const EXAMPLES = [
+  {
+    image: '/images/projects/food-relief.jpg',
+    imageAlt: 'Volunteers packing fresh food and essentials into donation boxes',
+    title: 'Help put food on the table',
+    body: 'Yield can fund meals and food parcels for families who need them. Your deposit stays in the vault; the interest supports hunger relief.',
+  },
+  {
+    image: '/images/projects/forest-recovery.jpg',
+    imageAlt: 'Volunteers holding young saplings ready for planting',
+    title: 'Help forests grow back',
+    body: 'Yield can support recovery after forest fires, helping communities restore forests in places like Kalimantan.',
   },
 ]
 
 export default function HomePage() {
-  usePageTitle('A clearer path to impact')
+  usePageTitle('Give the interest, keep the money')
   const { snapshot, rows } = useCauses()
   const now = useNow()
   const vault = snapshot.status === 'ready' ? snapshot.data : undefined
 
   return (
     <div className="space-y-16 md:space-y-24">
-      <section className="relative isolate -mx-4 overflow-hidden rounded-b-[32px] px-4 pb-10 pt-6 md:-mx-6 md:px-6 md:pb-16 md:pt-10 lg:-mx-8 lg:px-8">
+      <section className="relative isolate overflow-hidden rounded-[28px] border-2 border-forest animate-aurora bg-gradient-to-br from-sage/55 via-ivory to-gold/45 bg-[length:220%_220%] px-5 py-8 shadow-[0_18px_40px_-20px_rgba(22,77,66,0.45)] md:px-12 md:py-14">
         <HeroGlow />
-        <ContourArt animate className="absolute -right-24 -top-16 -z-10 h-[480px] w-[480px] opacity-70 md:-right-10 md:h-[620px] md:w-[620px]" />
+        <ContourArt animate flow="#D7B36B" stroke="#164D42" className="absolute -right-24 -top-16 -z-10 h-[480px] w-[480px] opacity-40 md:-right-10 md:h-[620px] md:w-[620px]" />
         <div className="max-w-2xl animate-rise">
           {vault ? <PhaseChip phase={vaultPhase(vault, now)} /> : <Skeleton className="h-6 w-36" />}
           <h1 className="t-page mt-5 max-w-xl">{COPY.heroTitle}</h1>
-          <p className="prose-reading mt-4 text-ink/90">{COPY.heroBody}</p>
+          <p className="prose-reading mt-4 text-lg text-ink">{COPY.heroBody}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/onboarding" className="btn btn-primary min-h-[52px] px-6 text-base">
-              Get started
+              Start giving
               <ArrowRight aria-hidden className="h-4 w-4" />
             </Link>
             <Link to="/impact" className="btn btn-secondary min-h-[52px] px-6 text-base">
-              See the causes
+              See where it goes
             </Link>
           </div>
-          <p className="t-small mt-4 max-w-md text-ink/75">No wallet needed to browse. Connecting never requests a spending approval.</p>
+          <p className="t-small mt-4 max-w-md text-ink/80">No wallet needed to look around. Connecting never asks to spend anything.</p>
         </div>
+      </section>
+
+      <section aria-label="Why it works">
+        <ul className="grid gap-4 md:grid-cols-3">
+          {PROMISES.map((item) => (
+            <li key={item.title} className="card flex gap-4">
+              <span aria-hidden className="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-gold/45 text-forest">
+                <item.icon className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-base font-semibold leading-snug text-forest">{item.title}</h2>
+                <p className="t-small mt-1 text-ink/85">{item.body}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="examples-heading">
+        <SectionHeading id="examples-heading" title="Your yield helps fund projects like these" description="The interest your deposit earns goes to approved causes. Here’s the kind of work it can fund." />
+        <ul className="grid gap-4 md:grid-cols-2">
+          {EXAMPLES.map((item) => (
+            <li key={item.title} className="card overflow-hidden !p-0">
+              <img
+                src={item.image}
+                alt={item.imageAlt}
+                width={1200}
+                height={800}
+                loading="lazy"
+                decoding="async"
+                className="aspect-[16/10] w-full object-cover"
+              />
+              <div className="p-4 md:p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-lg font-semibold text-forest">{item.title}</h3>
+                  <span className="rounded-full border border-ink/30 px-2.5 py-0.5 text-xs font-medium text-ink/80">Example</span>
+                </div>
+                <p className="t-small prose-reading mt-1.5 text-ink/85">{item.body}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="t-small prose-reading mt-3 text-ink/80">
+          These are example projects, shown with stock photography. Yield goes only to causes approved by the vault owner. See the current recipients below.
+        </p>
       </section>
 
       <section aria-labelledby="how-heading">
@@ -102,8 +168,8 @@ export default function HomePage() {
       <section aria-labelledby="causes-heading">
         <SectionHeading
           id="causes-heading"
-          title="Where the yield can go"
-          description="Only causes approved by the vault owner can receive yield."
+          title="Approved causes right now"
+          description="The addresses that can receive yield from this vault."
           action={
             <Link to="/impact" className="btn btn-ghost">
               All causes
