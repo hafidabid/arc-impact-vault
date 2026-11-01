@@ -107,7 +107,7 @@ After round 3, the admin approved a second cause, the ImpactVault Forest Restora
 | 3 | 0.7 + 0.8 USDC | 0.239999 USDC | [`0x5b60ae3c…6bd72`](https://explorer.arc.io/tx/0x5b60ae3ce8ac37c5291e48eafaaf8c0c264509f73b8aff069881c0ad6586bd72) |
 | 4 | 0.5 + 0.6 USDC | 0.1 USDC to Hunger Relief + 0.199998 USDC to Forest Restoration | [`0x5a8b9757…9b449`](https://explorer.arc.io/tx/0x5a8b9757654c558e892698dda3d94c3ffb88df1f9982d341bcf60e04f489b449), [`0x3554cd73…2c675`](https://explorer.arc.io/tx/0x3554cd7357555ed5e7a36c04c45c5bb884c854ba99e64f05ea241bc637b2c675) |
 
-That is 5.6 USDC of principal deposited and returned, and 1.139996 USDC of yield donated, across 61 transactions. Total gas was 0.399 USDC. [`scripts/mainnet-demo.ts`](scripts/mainnet-demo.ts) (rounds 1–3) and [`scripts/mainnet-round4.ts`](scripts/mainnet-round4.ts) sent every transaction and logs each one, so a re-run resumes rather than repeats.
+That is 5.6 USDC of principal deposited and returned, and 1.139995 USDC of yield donated, across 61 transactions. Total gas was 0.399 USDC. [`scripts/mainnet-demo.ts`](scripts/mainnet-demo.ts) (rounds 1–3) and [`scripts/mainnet-round4.ts`](scripts/mainnet-round4.ts) sent every transaction and logs each one, so a re-run resumes rather than repeats.
 
 The mainnet strategy is the unaudited demo `MockYieldStrategy`, and its yield is USDC the admin transferred in. The demo proves the vault's mechanics with real money on mainnet. It does not show real investment returns, and the strategy should not hold meaningful funds.
 
