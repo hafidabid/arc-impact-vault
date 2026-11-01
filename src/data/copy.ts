@@ -6,7 +6,7 @@ export const COPY = {
     'Deposit USDC for a fixed term and receive your full principal at maturity. The yield it earns is donated to approved causes in hunger relief and forest restoration, and every transfer is recorded publicly on Arc.',
   principalLabel: 'Deposited principal',
   riskLine:
-    '',
+    'Deposits are not insured or guaranteed and carry smart-contract, strategy and network risk.',
   yieldNote:
     'Yield belongs to the vault, not to individual depositors. It is held in reserve for approved causes and is never paid out as principal.',
   transferNote:
