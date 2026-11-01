@@ -62,15 +62,6 @@ Network: Arc Testnet (chain ID `5042002`) by default, Arc Mainnet (chain ID `504
 
 ## Live deployment
 
-### Arc Testnet
-
-| | |
-| --- | --- |
-| ImpactVault | [`0xd56B2ba0c4082D74856e4f739DaF9174507eaA6b`](https://explorer.testnet.arc.io/address/0xd56B2ba0c4082D74856e4f739DaF9174507eaA6b) |
-| Yield strategy | [`0xb0bae8c07a5c738aa7eac07eccd0de0c4009bb71`](https://explorer.testnet.arc.io/address/0xb0bae8c07a5c738aa7eac07eccd0de0c4009bb71) |
-| USDC | `0x3600000000000000000000000000000000000000` |
-| Deploy block | `70101849` |
-
 ### Arc Mainnet
 
 Live on Arc Mainnet (chain ID `5042`) since 2026-11-01. The app at **https://arc-impact-vault.vercel.app** reads it, and all contracts are source-verified on [Arc Explorer](https://explorer.arc.io). The deployment ran four demo rounds with real USDC. Each round used its own vault, because a vault's maturity is fixed at deploy and it settles once.
@@ -165,95 +156,6 @@ VITE_STRATEGY_ADDRESS=0x4575af36401119405ae4b8c67369c22c41bfb51d \
 VITE_VAULT_DEPLOY_BLOCK=28985044 \
 bun run build
 ```
-
-## Deploying the backend
-
-None required. See [Architecture](#architecture) — the client reads contract state and event logs directly.
-
-## Deploying the contracts
-
-### Arc Testnet
-
-Redeploy the vault against the existing strategy. This reuses the on-chain init code of the current deployment, so **Foundry is not required** and the bytecode is identical to what is already live:
-
-```bash
-bun --env-file=secrets scripts/redeploy-vault.ts            # dry run: prints args, gas and cost
-bun --env-file=secrets scripts/redeploy-vault.ts --broadcast
-```
-
-`secrets` (git-ignored) needs `DEV_ETH_PRIVATE_KEY` for a wallet holding testnet USDC — on Arc that same balance pays gas. The script refuses to run if the fetched init code does not decode to the expected constructor arguments, and verifies `owner`, `strategy`, `usdc` and the timeline after deploying.
-
-Then point the app at the new address via `VITE_VAULT_ADDRESS` and `VITE_VAULT_DEPLOY_BLOCK` (both printed on success).
-
-An end-to-end test against the live network is available. It spends ~1 test USDC:
-
-```bash
-bun run test:testnet
-```
-
-### Arc Mainnet
-
-The live mainnet demo was deployed and driven by `scripts/mainnet-demo.ts` (dry run by default; `--broadcast` to send). It is for short-lived demo vaults only. It uses the mock strategy, deposit windows of a few minutes, and the admin's own key from `secrets`.
-
-For a long-lived production vault, use `contracts/script/DeployImpactVaultMainnet.s.sol`. It hard-asserts chain ID `5042`, takes every value from the environment with no defaults, preflights all of them before broadcasting, and re-checks the deployed state afterwards.
-
-```bash
-export STRATEGY_ADDRESS=0x…     # audited ERC-4626 vault whose asset is Arc USDC, synchronous redemption
-export ADMIN_ADDRESS=0x…        # vault owner — use a multisig or hardware wallet
-export FALLBACK_CAUSE=0x…       # must differ from ADMIN_ADDRESS
-export DEPOSIT_DEADLINE=…       # unix seconds, must be >24h out
-export MATURITY=…               # unix seconds, >= DEPOSIT_DEADLINE
-export CLAIM_GRACE_PERIOD=604800  # >= 7 days
-
-# Simulate against live state first — no --broadcast.
-forge script contracts/script/DeployImpactVaultMainnet.s.sol:DeployImpactVaultMainnet \
-  --rpc-url "$ARC_MAINNET_RPC_URL" --account <keystore-name>
-
-# Then broadcast.
-forge script contracts/script/DeployImpactVaultMainnet.s.sol:DeployImpactVaultMainnet \
-  --rpc-url "$ARC_MAINNET_RPC_URL" --account <keystore-name> --broadcast
-```
-
-Sign with an encrypted keystore or hardware wallet. Never pass a raw private key on the command line.
-
-Before going to mainnet:
-
-- [ ] Replace the strategy with an **audited** ERC-4626 vault on Arc USDC. The included reference strategy is for testnet only and must not hold real funds.
-- [ ] Set `ADMIN_ADDRESS` to a multisig. Admin powers are listed below, and `Ownable2Step` means a transfer needs the new owner to accept.
-- [ ] Fund the admin address with USDC. Arc charges gas in USDC, so **an admin that holds none cannot act at all** — including `transferOwnership`.
-- [ ] Verify the contracts on the Arc explorer.
-- [ ] Commission a security review.
-
-## Owner powers
-
-The owner is deliberately constrained. It can approve and remove causes, distribute realised yield to an approved cause, raise the deposit cap, pause and unpause deposits, trigger emergency shutdown, enable in-kind exit, and rescue unreserved tokens. It **cannot** withdraw depositor principal, redirect yield to an unapproved address, or lower the deposit cap once deposits have begun.
-
-The admin workspace at `/admin` is a convenience, not a security boundary — it only hides controls. Every admin action is enforced by the contract, which rejects any other caller with `OwnableUnauthorizedAccount`.
-
-## Design notes
-
-The interface is built on one rule: **never show a number it cannot prove.** When a read fails, figures are withheld rather than rendered as zero, because an unknown balance is not an empty one. Projected yield is always labelled an estimate. Approved causes with no configured display name appear as raw addresses rather than invented charity names.
-
-It targets WCAG 2.2 AA — visible focus, 44px touch targets, full keyboard reachability, text contrast of at least 4.5:1 and non-text contrast of at least 3:1 — and all motion is CSS-driven so `prefers-reduced-motion` switches it off wholesale.
-
-## Status and security
-
-Impact Vault is working software on Arc Testnet and the contracts are built for production use: `Ownable2Step`, `Pausable`, `ReentrancyGuard`, integer-only USDC maths, balance-delta assertions around every external token movement, and donation-inflation protection on deposits.
-
-It has **not** had a third-party security audit, and the bundled yield strategy is a reference implementation for testnet. Treat the mainnet checklist above as a prerequisite, not a suggestion.
-
-## Repository layout
-
-```
-contracts/            ImpactVault.sol, reference strategy, deploy scripts
-src/chain/            config, ABIs, wagmi hooks, pure derivations, event → ledger
-src/components/       layout, UI primitives, vault widgets, signature art
-src/pages/            public pages, wallet pages, /admin workspace
-scripts/              redeploy-vault.ts, e2e-testnet.ts, dev-signer.ts
-tests/                unit tests for derivations and formatting
-```
-
-Business logic lives in `src/chain/derive.ts` as pure functions over a contract snapshot, which is why phase, payout and error handling are unit-testable without a network.
 
 ## License
 
