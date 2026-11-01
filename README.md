@@ -73,39 +73,41 @@ Network: Arc Testnet (chain ID `5042002`) by default, Arc Mainnet (chain ID `504
 
 ### Arc Mainnet
 
-Live on Arc Mainnet (chain ID `5042`) since 2026-11-01. The app at **https://arc-impact-vault.vercel.app** reads it, and all contracts are source-verified on [Arc Explorer](https://explorer.arc.io). The deployment ran a three-round demo with real USDC. Each round used its own vault, because a vault's maturity is fixed at deploy and it settles once.
+Live on Arc Mainnet (chain ID `5042`) since 2026-11-01. The app at **https://arc-impact-vault.vercel.app** reads it, and all contracts are source-verified on [Arc Explorer](https://explorer.arc.io). The deployment ran four demo rounds with real USDC. Each round used its own vault, because a vault's maturity is fixed at deploy and it settles once.
 
 | | |
 | --- | --- |
-| ImpactVault (round 3, used by the mainnet app build) | [`0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe`](https://explorer.arc.io/address/0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe) |
+| ImpactVault (round 4, used by the mainnet app build) | [`0x73f5a8200052e1cb8297e1f2fe6a7a049e0c86df`](https://explorer.arc.io/address/0x73f5a8200052e1cb8297e1f2fe6a7a049e0c86df) |
+| ImpactVault (round 3) | [`0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe`](https://explorer.arc.io/address/0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe) |
 | ImpactVault (round 1) | [`0x67f62f2bf77c50907fd503eaf47829a1848cfb39`](https://explorer.arc.io/address/0x67f62f2bf77c50907fd503eaf47829a1848cfb39) |
 | ImpactVault (round 2) | [`0x1be966b6755737d99190e21f20af4e2ba0775d14`](https://explorer.arc.io/address/0x1be966b6755737d99190e21f20af4e2ba0775d14) |
 | Yield strategy (demo MockYieldStrategy) | [`0x4575af36401119405ae4b8c67369c22c41bfb51d`](https://explorer.arc.io/address/0x4575af36401119405ae4b8c67369c22c41bfb51d) |
 | Owner / admin | [`0x922De363B0eB317bE610f4FC707eF994A011EDE3`](https://explorer.arc.io/address/0x922De363B0eB317bE610f4FC707eF994A011EDE3) |
 | ImpactVault Hunger Relief Fund (default cause) | [`0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec`](https://explorer.arc.io/address/0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec) |
 | ImpactVault Forest Restoration Fund | [`0xC09eF1438D424606269E2CCc67deAA70F325C04b`](https://explorer.arc.io/address/0xC09eF1438D424606269E2CCc67deAA70F325C04b) |
-| Round 3 deploy block | `28952345` |
+| Round 4 deploy block | `28985044` |
 | USDC | `0x3600000000000000000000000000000000000000` |
 
 #### Mainnet activity
 
 In each round:
 
-1. Two depositors deposited 0.7 and 0.8 USDC.
+1. Two depositors deposited USDC (0.7 and 0.8 in rounds 1–3; 0.5 and 0.6 in round 4).
 2. The admin added simulated yield to the strategy.
 3. The vault was settled at maturity.
 4. Both depositors withdrew their **full principal**.
-5. The admin donated all realised yield to the ImpactVault Hunger Relief Fund.
+5. The admin donated all realised yield to approved causes: the ImpactVault Hunger Relief Fund in rounds 1–3, and both funds in round 4.
 
-After the rounds, the admin approved a second cause, the ImpactVault Forest Restoration Fund ([tx](https://explorer.arc.io/tx/0x2054f6652b047633bd02f8698e738d978e6b326f24fe26e4cdc578b783619f70)).
+After round 3, the admin approved a second cause, the ImpactVault Forest Restoration Fund ([tx](https://explorer.arc.io/tx/0x2054f6652b047633bd02f8698e738d978e6b326f24fe26e4cdc578b783619f70)). Round 4 approved it on its own vault ([tx](https://explorer.arc.io/tx/0x1df1cd18c0dcbd12d28aa683b19a734f2c194b76f000ad6342a3da794c150bdf)).
 
 | Round | Deposits | Realised yield donated | Donation tx |
 | --- | --- | --- | --- |
 | 1 | 0.7 + 0.8 USDC | 0.299999 USDC | [`0xe5180f01…f4679`](https://explorer.arc.io/tx/0xe5180f01643dd0516c2bd3420c210f18c4f215eb762683f7e47a0f0b1e8f4679) |
 | 2 | 0.7 + 0.8 USDC | 0.299999 USDC | [`0x5b9ccfb0…93630`](https://explorer.arc.io/tx/0x5b9ccfb0fa7c739dcf268def3bc03cc89f3e83e47e2dc3b445177d6462b93630) |
 | 3 | 0.7 + 0.8 USDC | 0.239999 USDC | [`0x5b60ae3c…6bd72`](https://explorer.arc.io/tx/0x5b60ae3ce8ac37c5291e48eafaaf8c0c264509f73b8aff069881c0ad6586bd72) |
+| 4 | 0.5 + 0.6 USDC | 0.1 USDC to Hunger Relief + 0.199998 USDC to Forest Restoration | [`0x5a8b9757…9b449`](https://explorer.arc.io/tx/0x5a8b9757654c558e892698dda3d94c3ffb88df1f9982d341bcf60e04f489b449), [`0x3554cd73…2c675`](https://explorer.arc.io/tx/0x3554cd7357555ed5e7a36c04c45c5bb884c854ba99e64f05ea241bc637b2c675) |
 
-That is 4.5 USDC of principal deposited and returned, and 0.839998 USDC of yield donated, across 43 transactions. Total gas was 0.313 USDC. [`scripts/mainnet-demo.ts`](scripts/mainnet-demo.ts) sent every transaction and logs each one, so a re-run resumes rather than repeats.
+That is 5.6 USDC of principal deposited and returned, and 1.139996 USDC of yield donated, across 61 transactions. Total gas was 0.399 USDC. [`scripts/mainnet-demo.ts`](scripts/mainnet-demo.ts) (rounds 1–3) and [`scripts/mainnet-round4.ts`](scripts/mainnet-round4.ts) sent every transaction and logs each one, so a re-run resumes rather than repeats.
 
 The mainnet strategy is the unaudited demo `MockYieldStrategy`, and its yield is USDC the admin transferred in. The demo proves the vault's mechanics with real money on mainnet. It does not show real investment returns, and the strategy should not hold meaningful funds.
 
@@ -154,13 +156,13 @@ VITE_VAULT_DEPLOY_BLOCK=… \
 bun run build
 ```
 
-Defaults in `src/chain/config.ts` point at the live testnet deployment, so a plain `bun run build` produces a working testnet app. To build against the mainnet round 3 vault:
+Defaults in `src/chain/config.ts` point at the live testnet deployment, so a plain `bun run build` produces a working testnet app. To build against the mainnet round 4 vault:
 
 ```bash
 VITE_CHAIN=arc \
-VITE_VAULT_ADDRESS=0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe \
+VITE_VAULT_ADDRESS=0x73f5a8200052e1cb8297e1f2fe6a7a049e0c86df \
 VITE_STRATEGY_ADDRESS=0x4575af36401119405ae4b8c67369c22c41bfb51d \
-VITE_VAULT_DEPLOY_BLOCK=28952345 \
+VITE_VAULT_DEPLOY_BLOCK=28985044 \
 bun run build
 ```
 
