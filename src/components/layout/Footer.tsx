@@ -16,7 +16,6 @@ export function DisclosureFooter({ full = false }: { full?: boolean }) {
           <p className="t-small prose-reading mt-2 text-ink/90">{COPY.riskLine}</p>
         )}
         <p className="t-small mt-4 text-ink/75">
-          ImpactVault demo. Synthetic data only.{' '}
           <Link to="/account#disclosures" className="font-medium text-forest underline underline-offset-4">
             Read all disclosures
           </Link>

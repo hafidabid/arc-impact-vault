@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom'
 import { cx } from '@/lib/cx'
 
-/** Mark: a ring (the vault) holding a sprout (the impact). Drawn in SVG, no stock imagery. */
+/** Mark: a closed ring (the vault) with a sprout breaking through it (the impact). Mirrors public/logo-mark.svg. */
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 40 40" className={cx('h-9 w-9', className)} aria-hidden fill="none">
-      <rect width="40" height="40" rx="12" fill="#164D42" />
-      <circle cx="20" cy="20" r="11.5" stroke="#F8F8F3" strokeOpacity="0.35" strokeWidth="1.5" />
-      <path d="M20 27.5V19.5" stroke="#F8F8F3" strokeWidth="2" strokeLinecap="round" />
-      <path d="M20 20c0-3.6-2.4-5.8-6-6 0 3.6 2.4 6 6 6Z" fill="#91AD9D" />
-      <path d="M20 18.2c0-3.2 2.1-5.4 5.8-5.6 0 3.4-2.2 5.6-5.8 5.6Z" fill="#D7B36B" />
+    <svg viewBox="0 0 64 64" className={cx('h-9 w-9', className)} aria-hidden fill="none">
+      <rect width="64" height="64" rx="18" fill="#164D42" />
+      <circle cx="32" cy="34" r="18" stroke="#F8F8F3" strokeWidth="4" />
+      <path d="M32 49V33" stroke="#F8F8F3" strokeWidth="3" strokeLinecap="round" />
+      <g stroke="#164D42" strokeWidth="3" strokeLinejoin="round" paintOrder="stroke">
+        <path d="M32 41C31 34 28 28.5 22.5 26.5C22 33.5 26 40 32 41Z" fill="#91AD9D" />
+        <path d="M32 33C31 23 35 15 43 12C45 22 40 31 32 33Z" fill="#D7B36B" />
+      </g>
     </svg>
   )
 }

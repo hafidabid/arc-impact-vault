@@ -3,14 +3,13 @@ import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { cx } from '@/lib/cx'
 
-type CalloutTone = 'info' | 'warn' | 'error' | 'success' | 'sponsor'
+type CalloutTone = 'info' | 'warn' | 'error' | 'success'
 
 const STYLE: Record<CalloutTone, { box: string; icon: LucideIcon; iconColor: string }> = {
   info: { box: 'border-ink/15 bg-sage/20', icon: Info, iconColor: 'text-forest' },
   warn: { box: 'border-gold bg-gold/25', icon: AlertTriangle, iconColor: 'text-ink' },
   error: { box: 'border-[#8a2f1d]/50 bg-[#8a2f1d]/[0.07]', icon: OctagonAlert, iconColor: 'text-[#8a2f1d]' },
   success: { box: 'border-forest/40 bg-forest/[0.07]', icon: CheckCircle2, iconColor: 'text-forest' },
-  sponsor: { box: 'border-gold bg-gold/25', icon: Info, iconColor: 'text-ink' },
 }
 
 interface CalloutProps {

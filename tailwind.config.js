@@ -53,6 +53,14 @@ export default {
       },
       animation: {
         rise: 'rise 150ms ease-out both',
+        // Signature motion; keyframes live in index.css so each one can resolve to its resting state.
+        'contour-draw': 'contour-draw 1100ms cubic-bezier(0.33, 1, 0.68, 1) both',
+        'contour-breathe': 'contour-breathe 14s ease-in-out 1100ms infinite',
+        'wash-a': 'wash-a 26s ease-in-out infinite',
+        'wash-b': 'wash-b 34s ease-in-out infinite',
+        'field-slow': 'field-slow 70s ease-in-out infinite',
+        'field-fast': 'field-fast 52s ease-in-out infinite',
+        'timeline-travel': 'timeline-travel 1.1s linear infinite',
       },
     },
   },

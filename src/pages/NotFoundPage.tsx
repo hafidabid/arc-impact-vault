@@ -14,12 +14,12 @@ export default function NotFoundPage() {
             Back to home
           </Link>
           <Link to="/impact" className="btn btn-secondary">
-            Impact explorer
+            See the causes
           </Link>
         </>
       }
     >
-      Only two pools exist: Hunger Relief and Kalimantan Forest Fire Relief.
+      The page may have moved, or the address may be mistyped.
     </EmptyState>
   )
 }

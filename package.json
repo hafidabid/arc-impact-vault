@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "deploy:self": "bun run ./scripts/self-deploy.ts",
     "compass:deploy": "bun run ./scripts/compass-deploy.ts",
     "fetch:abi": "bun run ./scripts/fetch-abi.ts",
@@ -12,7 +14,9 @@
     "typecheck": "tsc --noEmit",
     "check": "bash scripts/check.sh",
     "contracts:build": "forge build",
-    "contracts:test": "forge test"
+    "contracts:test": "forge test",
+    "test": "vitest run",
+    "test:testnet": "bun run scripts/e2e-testnet.ts"
   },
   "dependencies": {
     "@circle-fin/adapter-viem-v2": "^1.19.2",
@@ -53,6 +57,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "~7.0.2",
     "vite": "^6.0.5",
-    "vite-plugin-node-polyfills": "^0.22.0"
+    "vite-plugin-node-polyfills": "^0.22.0",
+    "vitest": "^3"
   }
 }

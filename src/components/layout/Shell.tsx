@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { useVault } from '@/state/VaultProvider'
+import { useSession } from '@/chain/hooks'
+import { ContourField } from '@/components/art/ContourArt'
 import { ConnectButton } from './ConnectButton'
-import { DemoBanner } from './DemoBanner'
 import { DisclosureFooter } from './Footer'
 import { Logo } from './Logo'
 import { BottomNav, SideNav } from './Navigation'
@@ -11,10 +11,10 @@ const WALLET_ROUTES = ['/dashboard', '/deposit', '/activity', '/withdraw', '/acc
 
 function useShellMode(): 'app' | 'public' {
   const { pathname } = useLocation()
-  const { overview } = useVault()
+  const { isConnected } = useSession()
   if (pathname === '/' || pathname.startsWith('/onboarding')) return 'public'
   if (WALLET_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))) return 'app'
-  return overview.connected ? 'app' : 'public'
+  return isConnected ? 'app' : 'public'
 }
 
 /** Moves focus to the page region after navigation (not on first load) and resets scroll. */
@@ -76,17 +76,18 @@ export function Shell() {
   const isApp = mode === 'app'
 
   return (
-    <div className="min-h-dvh bg-ivory">
+    // No background colour here: `body` paints ivory, which lets ContourField sit behind the whole app.
+    <div className="min-h-dvh">
+      <ContourField />
       <a
         href="#main"
         className="sr-only z-50 rounded-control bg-forest px-4 py-3 font-semibold text-ivory focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
       >
         Skip to main content
       </a>
-      <DemoBanner />
       <div className="flex">
         {isApp ? <SideNav /> : null}
-        <div className="flex min-h-[calc(100dvh-44px)] min-w-0 flex-1 flex-col">
+        <div className="flex min-h-dvh min-w-0 flex-1 flex-col">
           {isApp ? <AppTopBar /> : <PublicHeader />}
           <main
             id="main"

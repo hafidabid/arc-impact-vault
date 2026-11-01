@@ -1,14 +1,15 @@
-import { ArrowLeft, CloudOff, Wallet } from 'lucide-react'
+import { ArrowLeft, Wallet } from 'lucide-react'
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { Callout } from '@/components/ui/Callout'
-import { useVault } from '@/state/VaultProvider'
+import { CHAIN } from '@/chain/config'
+import { useSession } from '@/chain/hooks'
 import { ConnectButton } from './ConnectButton'
 
 export function usePageTitle(title: string) {
   useEffect(() => {
-    document.title = `${title} | ImpactVault (demo)`
+    document.title = `${title} | ImpactVault`
   }, [title])
 }
 
@@ -57,7 +58,7 @@ export function EmptyState({
   action?: ReactNode
 }) {
   return (
-    <div className="flex flex-col items-center rounded-card border border-dashed border-ink/30 bg-sage/10 px-6 py-10 text-center">
+    <div className="flex flex-col items-center rounded-card border border-dashed border-ink/55 bg-sage/10 px-6 py-10 text-center">
       <span aria-hidden className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-sage/35 text-forest">
         {icon ?? <Wallet className="h-6 w-6" />}
       </span>
@@ -70,8 +71,8 @@ export function EmptyState({
 
 /** Wraps wallet-only pages. Shows a connect prompt rather than inventing balances. */
 export function ConnectGate({ children, purpose }: { children: ReactNode; purpose: string }) {
-  const { overview } = useVault()
-  if (!overview.connected) {
+  const { isConnected } = useSession()
+  if (!isConnected) {
     return (
       <EmptyState title="Connect your wallet" action={<ConnectButton />}>
         {purpose} Connecting does not request any spending approval. You can keep browsing public pages without connecting.
@@ -81,40 +82,43 @@ export function ConnectGate({ children, purpose }: { children: ReactNode; purpos
   return <>{children}</>
 }
 
-/** Network and sync notices that sit above page content. */
+/** Network notices that sit above page content. */
 export function SessionNotices() {
-  const { overview, client } = useVault()
+  const session = useSession()
   return (
     <div className="space-y-3 empty:hidden">
-      {overview.wrongNetwork ? (
+      {session.wrongNetwork ? (
         <Callout
           live
           tone="error"
           title="Wrong network"
           action={
-            <button type="button" className="btn btn-primary" onClick={() => void client.switchNetwork()}>
-              Switch network
+            <button type="button" className="btn btn-primary" disabled={session.switching} onClick={() => void session.switchNetwork()}>
+              Switch to {CHAIN.name}
             </button>
           }
         >
-          Your wallet is on a different network than the one configured for ImpactVault. Actions are blocked until you switch.
-        </Callout>
-      ) : null}
-      {overview.dataStatus === 'sync-error' ? (
-        <Callout
-          live
-          tone="warn"
-          title="Could not sync your balances"
-          action={
-            <button type="button" className="btn btn-secondary" onClick={() => client.setScenario({ data: 'ready' })}>
-              <CloudOff aria-hidden className="h-4 w-4" />
-              Try again
-            </button>
-          }
-        >
-          Balances are hidden instead of shown as zero, because an unknown balance is not the same as an empty one.
+          Your wallet is on a different network than the one ImpactVault uses ({CHAIN.name}). Transactions are blocked until you switch.
         </Callout>
       ) : null}
     </div>
+  )
+}
+
+/** Shown when a read fails. Figures are withheld, never displayed as zero. */
+export function SyncError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <Callout
+      live
+      tone="warn"
+      title="Could not load on-chain data"
+      action={
+        <button type="button" className="btn btn-secondary" onClick={onRetry}>
+          Try again
+        </button>
+      }
+    >
+      Figures are hidden instead of shown as zero, because an unknown balance is not the same as an empty one.
+    </Callout>
   )
 }

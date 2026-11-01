@@ -60,6 +60,87 @@ body {
     transform: translateX(100%);
   }
 }
+
+/*
+ * Signature motion. Every set below ends at its resting state, because the reduced-motion block clamps
+ * animations to one 0.01ms iteration — so 100% is what a reduced-motion visitor actually sees.
+ */
+
+/* Rings draw themselves inward-out, then stay drawn. */
+@keyframes contour-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* A slow swell, as if the rings were accumulating. Neutral at both ends. */
+@keyframes contour-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.035);
+  }
+}
+
+@keyframes wash-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-4%, 3%, 0) scale(1.12);
+  }
+}
+
+@keyframes wash-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, -4%, 0) scale(1.1);
+  }
+}
+
+/* Backdrop clusters drift in opposite directions for parallax depth. */
+@keyframes field-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(2.5%, -2%, 0) rotate(6deg);
+  }
+}
+
+@keyframes field-fast {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-3%, 2.5%, 0) rotate(-8deg);
+  }
+}
+
+/* Travels along the elapsed portion of the vault timeline. Ends full, which is the honest resting state. */
+@keyframes timeline-travel {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -14px;
+  }
+}
 @keyframes sheet {
   0% {
     opacity: 0;
@@ -130,8 +211,9 @@ body {
   .field-error {
     @apply mt-1.5 flex items-start gap-1.5 text-sm font-medium leading-normal text-[#8a2f1d];
   }
+  /* ink/55 is the lightest border that clears WCAG 1.4.11's 3:1 for a form-field boundary (3.26:1). */
   .input {
-    @apply min-h-[44px] w-full rounded-control border border-ink/40 bg-ivory px-4 text-base text-ink transition duration-150 placeholder:text-ink/70 hover:border-ink/60;
+    @apply min-h-[44px] w-full rounded-control border border-ink/55 bg-ivory px-4 text-base text-ink transition duration-150 placeholder:text-ink/70 hover:border-ink/75;
   }
   .input[aria-invalid='true'] {
     @apply border-[#8a2f1d];

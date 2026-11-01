@@ -49,18 +49,24 @@ bun run dev
 Yield-giving vault on Arc Testnet: principal returned to depositors, only yield goes to admin-approved causes.
 
 Deployed on Arc Testnet (USDC 0x3600000000000000000000000000000000000000):
-- MockYieldStrategy (testnet-only demo, unaudited): 0xb0bae8c07a5c738aa7eac07eccd0de0c4009bb71
-- ImpactVault: 0xa0ed7b2ebe39093fff85d64c530d17a897939d06
-- Admin (owner): 0x6A1e1c6De242E90579287D22fdf87ae472B29754 (generated test wallet, key in .env as TEST_ADMIN_PRIVATE_KEY)
-- Fallback cause: 0xb1CB14E6c08E41d5cb856345F017A91E9D3445DE (generated test wallet, key in .env as TEST_FALLBACK_CAUSE_PRIVATE_KEY)
-- Timeline: deposits close 1794065013, maturity 1794669813 (unix), claim grace 7 days
+- MockYieldStrategy (testnet-only demo, unaudited): 0xb0bae8c07a5c738aa7eac07eccd0de0c4009bb71 — permissionless, no admin, shared by both vaults below.
+- ImpactVault: 0xd56B2ba0c4082D74856e4f739DaF9174507eaA6b (deploy block 70101849)
+- Admin (owner): 0x922De363B0eB317bE610f4FC707eF994A011EDE3 — the same key as `DEV_ETH_PRIVATE_KEY` in `secrets`, and the address that deployed it. Admin calls are verified working.
+- Fallback cause: 0x922De363B0eB317bE610f4FC707eF994A011EDE3 (same address as admin, so swept yield stays recoverable on testnet)
+- Timeline: deposits close 2026-11-08T01:32:57Z, maturity 2026-11-15T01:32:57Z, claim grace 7 days
 - Emergency exit: owner-only emergencyShutdown(), then enableInKindExit() if the strategy cannot be redeemed.
+- Redeploy with `bun --env-file=secrets scripts/redeploy-vault.ts [--broadcast]`. It reuses the on-chain init code of the first deployment instead of recompiling, so Foundry is not required; it refuses to run if that init code's trailing bytes do not decode to the known original constructor args.
 
-## ImpactVault donor frontend (demo, mock data)
+### Superseded first deployment (do not use)
 
-- Spec lives in `context/ImpactVault-UIUX-Specification/` (read-only input, not part of the app).
-- Routes: `/`, `/onboarding`, `/impact`, `/impact/:poolId`, `/dashboard`, `/deposit`, `/activity`, `/withdraw`, `/account`. Admin, ledger and evidence routes are a later turn.
-- Data layer: `src/services/vault-client.ts` is the only interface the UI uses. `src/services/mock-client.ts` implements it with a persisted synthetic ledger (`src/data/seed.ts`, `src/lib/ledger.ts`). To go live, implement `VaultClient` against the wallet and contracts and change the export in `src/services/index.ts`.
-- Money is integer USDC base units everywhere; use `src/lib/units.ts` (wraps `@/onchain-money`).
-- Content rules: never combine principal and sponsor proceeds into one total; avoid the prohibited phrases listed in spec file 08.
-- Fonts: Inter via `@fontsource-variable/inter`. Design tokens in `tailwind.config.js` and `src/index.css`.
+- ImpactVault 0xa0ed7b2ebe39093fff85d64c530d17a897939d06 (deploy block 70028821) is **stranded**. It was deployed through Arc Studio's hosted deployer (EOA 0x8792161a120924A6c04791D3C4a576C4c93A4C2B via CREATE2 factory 0xa3039A54856ed74B5AEc999EeF3fc954Ab010Cf6), and its owner was set to a generated wallet 0x6A1e1c6De242E90579287D22fdf87ae472B29754 whose key was only ever in a git-ignored `.env` that no longer exists. That owner has nonce 0 and a zero USDC balance, so it can neither be recovered nor pay Arc gas: every `onlyOwner` function on that vault is permanently unreachable, including `transferOwnership`. It still holds 1.0 test USDC of principal. Depositors can still `withdraw()`/`claim()` because those are permissionless; nothing else works.
+- Lesson: on Arc, gas is paid in USDC, so an admin address must hold USDC and its key must be stored somewhere durable (`secrets`, not `.env`). Prefer making the deploying signer the admin.
+
+## ImpactVault frontend (live, contract-backed)
+
+- Spec lives in `ui-refs/` (and `context/ImpactVault-UIUX-Specification/`); where it describes sponsor lots, allocation or evidence review, the deployed contract is the source of truth (no such features on-chain).
+- Config: `src/chain/config.ts`, overridable with `VITE_VAULT_ADDRESS`, `VITE_STRATEGY_ADDRESS`, `VITE_USDC_ADDRESS`, `VITE_VAULT_DEPLOY_BLOCK`, and `VITE_CAUSES` (JSON `[{address,name,purpose}]` for cause names). Moving to production = new env values and the production chain in `CHAIN`.
+- Reads/writes: `src/chain/hooks.ts` (wagmi). Pure logic in `src/chain/derive.ts` (phase, payout, errors). Events → ledger in `src/chain/logs.ts`.
+- Routes: `/`, `/onboarding`, `/impact`, `/impact/:address`, `/dashboard`, `/deposit`, `/withdraw`, `/activity`, `/account`; owner-only `/admin`, `/admin/ledger`, `/admin/causes`.
+- Money is integer USDC base units; Arc gas is paid in the same USDC, so deposits reserve a fee.
+- Tests: `bun run test` (unit), `bun run test:testnet` (live, spends 1 test USDC using `secrets`, which is git-ignored). `scripts/dev-signer.ts` is a local-only signer for browser testing.

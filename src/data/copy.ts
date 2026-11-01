@@ -1,34 +1,23 @@
-/** Approved product copy. Keep wording aligned with the content spec. */
+/** Product copy. Keep wording aligned with the content rules in the UI specification. */
 export const COPY = {
   brand: 'ImpactVault',
   heroTitle: 'Your deposit. A clearer path to impact.',
   heroBody:
-    'In this demo, donations come from separate sponsor funds. Your deposited principal stays accounted for on its own.',
+    'Deposit USDC for a fixed term and get your principal back at maturity. The yield the vault earns in the meantime is donated to causes approved by the vault owner.',
   principalLabel: 'Deposited principal',
-  principalSentence: 'Deposited principal: 3.00 USDC.',
-  proceedsLabel: 'Available sponsor-funded demo proceeds',
-  proceedsSentence: 'Available sponsor-funded demo proceeds: 0.20 USDC.',
-  donationNote:
-    'This donation uses sponsor-funded demo proceeds. Your deposited principal is accounted for separately.',
-  transferConfirmed:
-    'Transfer confirmed. This receipt records a token transfer; evidence of relief delivery is shown separately.',
-  evidenceAccepted: 'Evidence accepted for display by a reviewer. This is not charity accreditation.',
   riskLine:
-    'Principal is not insured or guaranteed. Contract, custody, token and network risks remain.',
-  demoBanner:
-    'Demo mode. Balances, receipts and transfers are synthetic. No live wallet, network or funds are involved.',
-  syntheticReceipt: 'Synthetic demo receipt. Not a real transaction.',
-  depositSponsorLine: 'Sponsor proceeds: funded separately; subject to eligibility',
+    'Principal is not insured or guaranteed. Smart-contract, strategy, token and network risks remain.',
+  yieldNote:
+    'Yield is a property of the whole vault. It is not credited to any depositor and cannot be withdrawn as principal.',
+  transferNote:
+    'A confirmed transfer records a token movement to an address. It does not by itself show that relief was delivered.',
 } as const
 
-export const SPONSOR_NOT_RETURN =
-  'The sponsor contribution is separately funded. It is not a return on your deposit.'
-
 export const RISK_POINTS = [
-  'Principal is not insured or guaranteed. Contract, custody, token and network risks remain.',
-  'Keeping balances separate does not guarantee recovery of principal.',
-  'Sponsor-funded proceeds are restricted to donations. They are not withdrawable principal.',
-  'A deposit does not create sponsor proceeds. Sponsor funding and attribution are separate, eligibility-based events.',
-  'Pool names describe intended purposes. They do not establish charity verification, actual beneficiaries or completed impact.',
-  'This is a demo with synthetic data. Nothing here is a financial recommendation.',
+  'Principal is not insured or guaranteed. Smart-contract, strategy, token and network risks remain.',
+  'If the yield strategy returns less than the total deposited, every depositor is paid back pro rata and may receive less than they deposited.',
+  'Deposits are locked until the vault matures. In an emergency the vault owner can shut the vault down early, which also ends deposits permanently.',
+  'Only yield realised by the vault is donated. The vault owner chooses which approved cause receives it and when; if the owner does not distribute it within the grace period, anyone can send it to the fallback cause.',
+  'Cause names describe intended purposes. They do not establish charity verification, actual beneficiaries or completed impact.',
+  'Nothing here is a financial recommendation.',
 ] as const

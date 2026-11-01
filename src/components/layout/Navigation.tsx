@@ -1,9 +1,10 @@
 import { ArrowDownToLine, ArrowUpFromLine, HeartHandshake, Home, ListChecks, UserRound } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
-import { DEMO_CONFIG } from '@/data/config'
+import { CHAIN } from '@/chain/config'
+import { shortAddress } from '@/chain/derive'
+import { useSession } from '@/chain/hooks'
 import { cx } from '@/lib/cx'
-import { useVault } from '@/state/VaultProvider'
 import { Logo } from './Logo'
 
 interface NavItem {
@@ -82,8 +83,8 @@ function SideLink({ item }: { item: NavItem }) {
 
 /** 768-1023px: compact rail. 1024px and above: labeled sidebar with a wallet and network summary. */
 export function SideNav() {
-  const { state, overview } = useVault()
-  const connected = overview.connected
+  const session = useSession()
+  const connected = session.isConnected
   return (
     <aside className="sticky top-0 hidden h-dvh w-[84px] shrink-0 flex-col border-r border-ink/10 bg-ivory px-2 py-4 md:flex lg:w-[264px] lg:px-4">
       <div className="mb-4 flex justify-center lg:justify-start lg:px-1">
@@ -111,24 +112,11 @@ export function SideNav() {
       <div className="hidden rounded-card border border-ink/15 bg-sage/15 p-3.5 lg:block">
         <p className="t-small font-medium text-ink/80">Wallet</p>
         <p className="mt-0.5 flex items-center gap-2 text-[15px] font-semibold">
-          <span
-            aria-hidden
-            className={cx(
-              'h-2 w-2 rounded-full',
-              connected ? (state.session.network === 'wrong' ? 'bg-[#8a2f1d]' : 'bg-forest') : 'bg-ink/40',
-            )}
-          />
-          {connected ? DEMO_CONFIG.walletId : 'Not connected'}
+          <span aria-hidden className={cx('h-2 w-2 rounded-full', connected ? (session.wrongNetwork ? 'bg-[#8a2f1d]' : 'bg-forest') : 'bg-ink/40')} />
+          <span className="num">{connected && session.address ? shortAddress(session.address) : 'Not connected'}</span>
         </p>
         <p className="t-small mt-2 font-medium text-ink/80">Network</p>
-        <p className="text-[15px]">
-          {connected
-            ? state.session.network === 'wrong'
-              ? 'Wrong network'
-              : DEMO_CONFIG.networkLabel
-            : DEMO_CONFIG.networkLabel}
-        </p>
-        <p className="t-small mt-1 text-ink/75">Synthetic demo session</p>
+        <p className="text-[15px]">{connected && session.wrongNetwork ? 'Wrong network' : CHAIN.name}</p>
       </div>
     </aside>
   )

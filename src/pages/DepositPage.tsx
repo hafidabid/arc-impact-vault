@@ -1,187 +1,178 @@
-import { ArrowDownToLine, Landmark } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { ConnectGate, PageHeader, SessionNotices, usePageTitle } from '@/components/layout/PageParts'
-import { BlockCallout, blockReasonFor } from '@/components/money/Blockers'
-import { FlowRow } from '@/components/money/FlowRow'
-import { FlowOutcome, ProgressSteps } from '@/components/money/TxPanel'
-import { AmountField } from '@/components/ui/AmountField'
+import { ArrowRight, Check } from 'lucide-react'
+import { useState } from 'react'
+import { erc20Abi, vaultAbi } from '@/chain/abi'
+import { CHAIN, STRATEGY_ADDRESS, USDC_ADDRESS, VAULT_ADDRESS } from '@/chain/config'
+import { canDeposit, capacityLeft, maxDepositable, minSharesFor, PHASE_LABEL, vaultPhase } from '@/chain/derive'
+import { useAccountData, useFeeEstimate, useGasBalance, useNow, usePreviewShares, useSession, useTransaction, useVaultSnapshot } from '@/chain/hooks'
+import { AddressLink } from '@/components/chain/AddressLink'
+import { TxPanel } from '@/components/chain/TxPanel'
+import { ConnectGate, PageHeader, SessionNotices, SyncError, usePageTitle } from '@/components/layout/PageParts'
 import { Callout } from '@/components/ui/Callout'
-import { Skeleton } from '@/components/ui/Misc'
-import { DEMO_CONFIG } from '@/data/config'
+import { Definition, Skeleton } from '@/components/ui/Misc'
+import { Sheet } from '@/components/ui/Sheet'
+import { AmountField } from '@/components/ui/AmountField'
 import { COPY } from '@/data/copy'
 import { fmtUsdc, parseAmountInput } from '@/lib/units'
-import { useFlow, useVault } from '@/state/VaultProvider'
 
-function Terms() {
+/** Gas ceilings used only for the fee estimate shown to the user and the amount reserved by "Max". */
+const APPROVE_GAS = 100_000n
+const DEPOSIT_GAS = 600_000n
+
+function DepositForm() {
+  const session = useSession()
+  const account = useAccountData()
+  const snapshot = useVaultSnapshot()
+  const now = useNow()
+  const gas = useGasBalance()
+  const fee = useFeeEstimate(APPROVE_GAS + DEPOSIT_GAS)
+  const [text, setText] = useState('')
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const approval = useTransaction('approve')
+  const deposit = useTransaction('deposit')
+
+  const parsed = text === '' ? null : parseAmountInput(text)
+  const amount = parsed?.ok ? parsed.value : undefined
+  const preview = usePreviewShares(amount)
+
+  if (snapshot.status === 'error') return <SyncError onRetry={snapshot.refetch} />
+  if (account.status === 'error') return <SyncError onRetry={account.refetch} />
+  if (snapshot.status !== 'ready' || account.status !== 'ready') return <Skeleton className="h-72" />
+
+  const vault = snapshot.data
+  const { usdcBalance, allowance, principal } = account.data
+  const phase = vaultPhase(vault, now)
+  const room = capacityLeft(vault)
+  const feeReserve = fee ?? 0n
+  const max = maxDepositable(usdcBalance, feeReserve, room)
+  const needsApproval = amount !== undefined && allowance < amount
+
+  let error: string | null = null
+  if (parsed && !parsed.ok) error = parsed.error
+  else if (amount !== undefined) {
+    if (amount > room) error = `The vault accepts at most ${fmtUsdc(room)} USDC more.`
+    else if (amount > usdcBalance) error = 'This is more than your USDC balance.'
+    else if (amount > max) error = `Keep about ${fmtUsdc(feeReserve)} USDC for network fees. Network fees on Arc are paid in USDC from the same balance.`
+    else if (gas !== undefined && fee !== undefined && gas < fee) error = 'Your balance does not cover the network fee.'
+  }
+  const blocked = !canDeposit(phase) || session.wrongNetwork
+
+  const busy = approval.busy || deposit.busy
+  const approveReady = approval.tx.stage === 'confirmed' || !needsApproval
+
+  const runApprove = async () => {
+    if (amount === undefined) return
+    await approval.send('Approval of exactly this deposit amount', { address: USDC_ADDRESS, abi: erc20Abi, functionName: 'approve', args: [VAULT_ADDRESS, amount], chainId: CHAIN.id })
+  }
+  const runDeposit = async () => {
+    if (amount === undefined || preview === undefined) return
+    await deposit.send('Deposit', { address: VAULT_ADDRESS, abi: vaultAbi, functionName: 'deposit', args: [amount, minSharesFor(preview)], chainId: CHAIN.id })
+  }
+
   return (
-    <section aria-labelledby="terms-heading" className="card-soft h-fit">
-      <h2 id="terms-heading" className="t-label text-forest">
-        Where your deposit goes
-      </h2>
-      <dl className="t-small mt-3 space-y-3">
-        {[
-          ['Token', DEMO_CONFIG.tokenLabel],
-          ['Network', DEMO_CONFIG.networkLabel],
-          ['Custody destination', DEMO_CONFIG.custodyPrincipal],
-          ['Network fee', DEMO_CONFIG.feeEstimate],
-        ].map(([term, value]) => (
-          <div key={term}>
-            <dt className="text-ink/75">{term}</dt>
-            <dd className="text-[15px] font-medium">{value}</dd>
+    <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
+      <form
+        className="card space-y-5"
+        onSubmit={(event) => {
+          event.preventDefault()
+          if (!error && amount !== undefined && !blocked) setReviewOpen(true)
+        }}
+        noValidate
+      >
+        {!canDeposit(phase) ? (
+          <Callout live tone="warn" title={PHASE_LABEL[phase]}>
+            {phase === 'paused' ? 'The vault owner has paused new deposits. Withdrawals and settlement are unaffected.' : 'New deposits are no longer accepted by this vault.'}
+          </Callout>
+        ) : null}
+        <AmountField label="Amount to deposit" value={text} onChange={setText} error={error} balance={max} disabled={blocked || busy} balanceLabel="USDC balance" help={`Wallet balance ${fmtUsdc(usdcBalance)} USDC. Deposit limit ${fmtUsdc(room)} USDC.`} />
+        <dl className="space-y-2 rounded-control bg-sage/15 p-4">
+          <Definition term="Network">{CHAIN.name}</Definition>
+          <Definition term="Token">USDC · 6 decimals</Definition>
+          <Definition term="Estimated network fee">{fee === undefined ? 'Estimating…' : `about ${fmtUsdc(fee)} USDC`}</Definition>
+        </dl>
+        <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={blocked || amount === undefined || Boolean(error) || busy}>
+          Review deposit
+          <ArrowRight aria-hidden className="h-4 w-4" />
+        </button>
+        {principal > 0n ? <p className="t-small text-ink/80">You already have {fmtUsdc(principal)} USDC deposited. A new deposit adds to it.</p> : null}
+      </form>
+
+      <aside className="space-y-4">
+        <Callout tone="info" title="What happens to your deposit">
+          Your USDC goes into the vault, which invests it in its yield strategy. You get your principal back after maturity. The vault&apos;s yield is not credited to you; it is sent to causes approved by the owner.
+        </Callout>
+        <Callout tone="warn" title="Risks">
+          {COPY.riskLine} Deposits cannot be withdrawn before maturity unless the owner triggers an emergency shutdown.
+        </Callout>
+      </aside>
+
+      <Sheet open={reviewOpen} onClose={() => (busy ? undefined : setReviewOpen(false))} title="Review deposit" description="Nothing is sent until you confirm in your wallet.">
+        {amount !== undefined ? (
+          <div className="space-y-5">
+            <dl className="space-y-3">
+              <Definition term="Deposit principal">
+                <span className="text-lg font-semibold">{fmtUsdc(amount)} USDC</span>
+              </Definition>
+              <Definition term="Network">{CHAIN.name}</Definition>
+              <Definition term="Token">USDC · 6 decimals</Definition>
+              <Definition term="Custody destination">
+                <AddressLink address={VAULT_ADDRESS} />
+              </Definition>
+              <Definition term="Yield strategy">
+                <AddressLink address={STRATEGY_ADDRESS} />
+              </Definition>
+              <Definition term="Estimated network fee">{fee === undefined ? 'Estimating…' : `about ${fmtUsdc(fee)} USDC, paid separately`}</Definition>
+              <Definition term="Minimum strategy shares">{preview === undefined ? 'Checking…' : minSharesFor(preview).toString()}</Definition>
+            </dl>
+            <Callout tone="info">
+              The yield is not credited to you. At maturity you can claim {fmtUsdc(amount)} USDC back, subject to the strategy returning at least total deposits.
+            </Callout>
+
+            <ol className="space-y-3">
+              <li className="rounded-card border border-ink/15 p-4">
+                <p className="flex items-center gap-2 font-medium">
+                  {approveReady ? <Check aria-hidden className="h-4 w-4 text-forest" /> : null}1. Approve exactly {fmtUsdc(amount)} USDC
+                </p>
+                <p className="t-small text-ink/80">
+                  {approveReady && !needsApproval && approval.tx.stage !== 'confirmed' ? 'Already approved for this amount.' : 'Lets the vault pull this deposit and nothing more.'}
+                </p>
+                {needsApproval && approval.tx.stage !== 'confirmed' ? (
+                  <button type="button" className="btn btn-primary mt-3" disabled={busy || session.wrongNetwork} onClick={() => void runApprove()}>
+                    Approve
+                  </button>
+                ) : null}
+                <div className="mt-3">
+                  <TxPanel tx={approval.tx} onRecheck={approval.recheck} onDismiss={approval.reset} />
+                </div>
+              </li>
+              <li className="rounded-card border border-ink/15 p-4">
+                <p className="font-medium">2. Deposit</p>
+                {deposit.tx.stage !== 'confirmed' ? (
+                  <button type="button" className="btn btn-primary mt-3" disabled={busy || !approveReady || preview === undefined || session.wrongNetwork} onClick={() => void runDeposit()}>
+                    Deposit {fmtUsdc(amount)} USDC
+                  </button>
+                ) : null}
+                <div className="mt-3">
+                  <TxPanel tx={deposit.tx} onRecheck={deposit.recheck} onDismiss={deposit.reset} success={`Your principal is now recorded in the vault. Yield is not credited to you.`} />
+                </div>
+              </li>
+            </ol>
           </div>
-        ))}
-      </dl>
-      <p className="t-small mt-4 text-ink/80">{DEMO_CONFIG.networkNote}</p>
-      <p className="t-small mt-3 font-medium">{COPY.riskLine}</p>
-    </section>
+        ) : null}
+      </Sheet>
+    </div>
   )
 }
 
 export default function DepositPage() {
   usePageTitle('Deposit')
-  const { state, overview, client } = useVault()
-  const [text, setText] = useState('3.00')
-  const [reviewing, setReviewing] = useState(false)
-  const flow = useFlow()
-
-  const parsed = useMemo(() => parseAmountInput(text), [text])
-  const amount = parsed.ok ? parsed.value : null
-  const loading = overview.dataStatus === 'loading'
-  const unavailable = overview.dataStatus === 'sync-error'
-  const balanceError =
-    amount !== null && overview.dataStatus === 'ready' && amount > overview.walletUsdc
-      ? `This is more than your wallet balance of ${fmtUsdc(overview.walletUsdc)} USDC.`
-      : null
-  const amountError = text === '' ? null : !parsed.ok ? parsed.error : balanceError
-  const block = blockReasonFor(state, overview, 'deposit', null)
-  const valid = amount !== null && !balanceError && !block && overview.dataStatus === 'ready'
-  const showOutcome = flow.result !== null && flow.result.status !== 'blocked'
-
-  const submit = async () => {
-    if (!valid || amount === null) return
-    await flow.run((onPhase) => client.deposit(amount, onPhase))
-  }
-
   return (
     <>
-      <PageHeader
-        back={{ to: '/dashboard', label: 'Dashboard' }}
-        title="Deposit"
-        description="Deposit USDC as principal. It stays accounted for separately from any sponsor-funded proceeds."
-      />
-      <ConnectGate purpose="Depositing needs a connected wallet on the configured network.">
-        <div className="grid gap-6 lg:grid-cols-[1.5fr_1fr]">
-          <div className="space-y-5">
-            <SessionNotices />
-            {showOutcome && flow.result ? (
-              <div className="space-y-4">
-                <FlowOutcome kind="deposit" result={flow.result} onReset={() => { flow.reset(); setReviewing(true) }} />
-                {flow.result.status === 'confirmed' ? (
-                  <div className="flex flex-wrap gap-2">
-                    <Link to="/dashboard" className="btn btn-primary">
-                      Go to dashboard
-                    </Link>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => {
-                        flow.reset()
-                        setReviewing(false)
-                      }}
-                    >
-                      Make another deposit
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            ) : flow.busy ? (
-              <div className="card space-y-4">
-                <h2 className="t-section">Deposit in progress</h2>
-                <ProgressSteps kind="deposit" phase={flow.phase} />
-                <p className="t-small text-ink/80">
-                  Do not submit again. If the status becomes unknown you will get a receipt lookup instead of a new payment button.
-                </p>
-              </div>
-            ) : reviewing && amount !== null ? (
-              <div className="card space-y-5">
-                <h2 className="t-section">Review deposit</h2>
-                <dl className="divide-y divide-ink/10 rounded-card border border-ink/10">
-                  <div className="flex items-center justify-between gap-4 px-4 py-3">
-                    <dt className="font-medium">Deposit principal</dt>
-                    <dd className="num text-lg font-semibold">{fmtUsdc(amount)} USDC</dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 bg-gold/20 px-4 py-3">
-                    <dt className="font-medium">Sponsor proceeds</dt>
-                    <dd className="t-small text-right font-medium">funded separately; subject to eligibility</dd>
-                  </div>
-                </dl>
-                <FlowRow from="Your wallet (demo)" to={DEMO_CONFIG.custodyPrincipal} amount={amount} />
-                <dl className="t-small grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5">
-                  <dt className="text-ink/75">Token</dt>
-                  <dd className="text-right font-medium">{DEMO_CONFIG.tokenLabel}</dd>
-                  <dt className="text-ink/75">Network</dt>
-                  <dd className="text-right font-medium">{DEMO_CONFIG.networkLabel}</dd>
-                  <dt className="text-ink/75">Allowance requested</dt>
-                  <dd className="num text-right font-medium">Exactly {fmtUsdc(amount)} USDC</dd>
-                </dl>
-                <p className="t-small prose-reading text-ink/85">
-                  A deposit does not create sponsor proceeds. Sponsor funding and attribution are separate events, and nothing here promises that
-                  a deposit receives any. {COPY.riskLine}
-                </p>
-                {block ? <BlockCallout reason={block} /> : null}
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <button type="button" className="btn btn-secondary sm:flex-1" onClick={() => setReviewing(false)}>
-                    Back
-                  </button>
-                  <button type="button" className="btn btn-primary sm:flex-[2]" disabled={!valid} onClick={() => void submit()}>
-                    <ArrowDownToLine aria-hidden className="h-4 w-4" />
-                    Approve and deposit {fmtUsdc(amount)} USDC
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form
-                className="card space-y-5"
-                onSubmit={(event) => {
-                  event.preventDefault()
-                  if (valid) setReviewing(true)
-                }}
-                noValidate
-              >
-                <div className="flex items-center gap-3">
-                  <span aria-hidden className="flex h-10 w-10 items-center justify-center rounded-control bg-forest text-ivory">
-                    <Landmark className="h-5 w-5" />
-                  </span>
-                  <h2 className="t-section">Amount</h2>
-                </div>
-                {loading ? (
-                  <div className="space-y-3">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-12" />
-                  </div>
-                ) : (
-                  <AmountField
-                    label="Deposit amount"
-                    value={text}
-                    onChange={setText}
-                    error={amountError}
-                    balanceLabel="Wallet balance (demo)"
-                    balance={unavailable ? undefined : overview.walletUsdc}
-                    help="Enter 3.00 to follow the worked example."
-                    disabled={unavailable}
-                  />
-                )}
-                {unavailable ? <Callout tone="warn" title="Wallet balance unavailable">We cannot confirm your balance right now, so deposits are paused until it syncs.</Callout> : null}
-                {block ? <BlockCallout reason={block} /> : null}
-                <button type="submit" className="btn btn-primary w-full" disabled={!valid}>
-                  Review deposit
-                </button>
-              </form>
-            )}
-          </div>
-          <Terms />
-        </div>
+      <PageHeader title="Deposit USDC" description="Deposit before the deadline. Your principal is claimable after maturity." />
+      <div className="mb-6">
+        <SessionNotices />
+      </div>
+      <ConnectGate purpose="Connect a wallet to deposit.">
+        <DepositForm />
       </ConnectGate>
     </>
   )

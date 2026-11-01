@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 64" fill="none" role="img" aria-label="ImpactVault">
+  <rect width="64" height="64" rx="18" fill="#164D42"/>
+  <circle cx="32" cy="34" r="18" stroke="#F8F8F3" stroke-width="4"/>
+  <path d="M32 49V33" stroke="#F8F8F3" stroke-width="3" stroke-linecap="round"/>
+  <g stroke="#164D42" stroke-width="3" stroke-linejoin="round" paint-order="stroke">
+    <path d="M32 41C31 34 28 28.5 22.5 26.5C22 33.5 26 40 32 41Z" fill="#91AD9D"/>
+    <path d="M32 33C31 23 35 15 43 12C45 22 40 31 32 33Z" fill="#D7B36B"/>
+  </g>
+  <text x="80" y="43" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="30" font-weight="600" letter-spacing="-0.6" fill="#164D42">ImpactVault</text>
+</svg>
