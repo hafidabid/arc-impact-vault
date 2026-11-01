@@ -1,4 +1,4 @@
-import { arcTestnet } from 'viem/chains'
+import { arc, arcTestnet } from 'viem/chains'
 import type { Address, Chain } from 'viem'
 import { isAddress } from 'viem'
 
@@ -20,7 +20,8 @@ function blockFromEnv(name: string, fallback: bigint): bigint {
   return value ? BigInt(value) : fallback
 }
 
-export const CHAIN: Chain = arcTestnet
+/** `VITE_CHAIN=arc` selects Arc mainnet; anything else (or unset) is Arc Testnet. */
+export const CHAIN: Chain = env.VITE_CHAIN?.trim() === 'arc' ? arc : arcTestnet
 
 export const VAULT_ADDRESS = addressFromEnv('VITE_VAULT_ADDRESS', '0xd56B2ba0c4082D74856e4f739DaF9174507eaA6b')
 export const STRATEGY_ADDRESS = addressFromEnv('VITE_STRATEGY_ADDRESS', '0xb0bae8c07a5c738aa7eac07eccd0de0c4009bb71')

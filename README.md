@@ -58,7 +58,7 @@ The yield source is a pluggable ERC-4626 vault, passed once in the constructor a
 
 React 18 · Vite · TypeScript · Tailwind CSS · wagmi v2 · viem · ConnectKit · Solidity 0.8.28 · Foundry · OpenZeppelin 5.6
 
-Network: Arc Testnet (chain ID `5042002`). USDC is the native gas token on Arc, so deposits reserve a fee.
+Network: Arc Testnet (chain ID `5042002`) by default, Arc Mainnet (chain ID `5042`) with `VITE_CHAIN=arc`. USDC is the native gas token on Arc, so deposits reserve a fee.
 
 ## Live deployment
 
@@ -73,13 +73,38 @@ Network: Arc Testnet (chain ID `5042002`). USDC is the native gas token on Arc, 
 
 ### Arc Mainnet
 
-Not yet deployed. Chain ID `5042`; USDC predeploy is `0x3600000000000000000000000000000000000000`.
+Live on Arc Mainnet (chain ID `5042`) since 2026-11-01. The app at **https://arc-impact-vault.vercel.app** reads it, and all contracts are source-verified on [Arc Explorer](https://explorer.arc.io). The deployment ran a three-round demo with real USDC. Each round used its own vault, because a vault's maturity is fixed at deploy and it settles once.
 
 | | |
 | --- | --- |
-| ImpactVault | `0x…` _(pending)_ |
-| Yield strategy | `0x…` _(pending — must be an audited ERC-4626 vault, see below)_ |
-| Deploy block | _(pending)_ |
+| ImpactVault (round 3, used by the mainnet app build) | [`0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe`](https://explorer.arc.io/address/0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe) |
+| ImpactVault (round 1) | [`0x67f62f2bf77c50907fd503eaf47829a1848cfb39`](https://explorer.arc.io/address/0x67f62f2bf77c50907fd503eaf47829a1848cfb39) |
+| ImpactVault (round 2) | [`0x1be966b6755737d99190e21f20af4e2ba0775d14`](https://explorer.arc.io/address/0x1be966b6755737d99190e21f20af4e2ba0775d14) |
+| Yield strategy (demo MockYieldStrategy) | [`0x4575af36401119405ae4b8c67369c22c41bfb51d`](https://explorer.arc.io/address/0x4575af36401119405ae4b8c67369c22c41bfb51d) |
+| Owner / admin | [`0x922De363B0eB317bE610f4FC707eF994A011EDE3`](https://explorer.arc.io/address/0x922De363B0eB317bE610f4FC707eF994A011EDE3) |
+| Approved cause (fallback) | [`0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec`](https://explorer.arc.io/address/0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec) |
+| Round 3 deploy block | `28952345` |
+| USDC | `0x3600000000000000000000000000000000000000` |
+
+#### Mainnet activity
+
+In each round:
+
+1. Two depositors deposited 0.7 and 0.8 USDC.
+2. The admin added simulated yield to the strategy.
+3. The vault was settled at maturity.
+4. Both depositors withdrew their **full principal**.
+5. The admin donated all realised yield to the approved cause.
+
+| Round | Deposits | Realised yield donated | Donation tx |
+| --- | --- | --- | --- |
+| 1 | 0.7 + 0.8 USDC | 0.299999 USDC | [`0xe5180f01…f4679`](https://explorer.arc.io/tx/0xe5180f01643dd0516c2bd3420c210f18c4f215eb762683f7e47a0f0b1e8f4679) |
+| 2 | 0.7 + 0.8 USDC | 0.299999 USDC | [`0x5b9ccfb0…93630`](https://explorer.arc.io/tx/0x5b9ccfb0fa7c739dcf268def3bc03cc89f3e83e47e2dc3b445177d6462b93630) |
+| 3 | 0.7 + 0.8 USDC | 0.239999 USDC | [`0x5b60ae3c…6bd72`](https://explorer.arc.io/tx/0x5b60ae3ce8ac37c5291e48eafaaf8c0c264509f73b8aff069881c0ad6586bd72) |
+
+That is 4.5 USDC of principal deposited and returned, and 0.839998 USDC of yield donated, across 43 transactions. Total gas was 0.313 USDC. [`scripts/mainnet-demo.ts`](scripts/mainnet-demo.ts) sent every transaction and logs each one, so a re-run resumes rather than repeats.
+
+The mainnet strategy is the unaudited demo `MockYieldStrategy`, and its yield is USDC the admin transferred in. The demo proves the vault's mechanics with real money on mainnet. It does not show real investment returns, and the strategy should not hold meaningful funds.
 
 ---
 
@@ -112,6 +137,7 @@ Configuration is entirely environment-driven, so **moving networks never require
 
 | Variable | Purpose |
 | --- | --- |
+| `VITE_CHAIN` | `arc` for Arc Mainnet; unset for Arc Testnet |
 | `VITE_VAULT_ADDRESS` | ImpactVault address |
 | `VITE_STRATEGY_ADDRESS` | ERC-4626 strategy address |
 | `VITE_USDC_ADDRESS` | USDC address |
@@ -125,7 +151,15 @@ VITE_VAULT_DEPLOY_BLOCK=… \
 bun run build
 ```
 
-Defaults in `src/chain/config.ts` point at the live testnet deployment, so a plain `bun run build` produces a working testnet app. For mainnet, also switch `CHAIN` in that file to Arc mainnet.
+Defaults in `src/chain/config.ts` point at the live testnet deployment, so a plain `bun run build` produces a working testnet app. To build against the mainnet round 3 vault:
+
+```bash
+VITE_CHAIN=arc \
+VITE_VAULT_ADDRESS=0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe \
+VITE_STRATEGY_ADDRESS=0x4575af36401119405ae4b8c67369c22c41bfb51d \
+VITE_VAULT_DEPLOY_BLOCK=28952345 \
+bun run build
+```
 
 ## Deploying the backend
 
@@ -154,7 +188,9 @@ bun run test:testnet
 
 ### Arc Mainnet
 
-Use `contracts/script/DeployImpactVaultMainnet.s.sol`. It hard-asserts chain ID `5042`, takes every value from the environment with no defaults, preflights all of them before broadcasting, and re-checks the deployed state afterwards.
+The live mainnet demo was deployed and driven by `scripts/mainnet-demo.ts` (dry run by default; `--broadcast` to send). It is for short-lived demo vaults only. It uses the mock strategy, deposit windows of a few minutes, and the admin's own key from `secrets`.
+
+For a long-lived production vault, use `contracts/script/DeployImpactVaultMainnet.s.sol`. It hard-asserts chain ID `5042`, takes every value from the environment with no defaults, preflights all of them before broadcasting, and re-checks the deployed state afterwards.
 
 ```bash
 export STRATEGY_ADDRESS=0x…     # audited ERC-4626 vault whose asset is Arc USDC, synchronous redemption

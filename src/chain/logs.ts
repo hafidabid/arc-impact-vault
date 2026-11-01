@@ -54,15 +54,41 @@ export const KIND_LABEL: Record<LedgerKind, string> = {
   rescue: 'Token rescue',
 }
 
-const CHUNK = 20_000n
+/** Arc's public RPCs cap eth_getLogs at 10,000 blocks and rate-limit bursts, so stay under both. */
+const CHUNK = 9_000n
+const MAX_ATTEMPTS = 5
+
+type RawLog = Awaited<ReturnType<PublicClient['getLogs']>>[number]
+
+const errorText = (error: unknown) => (error instanceof Error ? `${error.message} ${(error as { details?: string }).details ?? ''}` : String(error))
+const isRateLimit = (error: unknown) => /rate limit|too many requests|429/i.test(errorText(error))
+const isRangeTooLarge = (error: unknown) => /range too large|too large|exceed.*(block|range)|block range|query returned more than/i.test(errorText(error))
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/** One bounded getLogs call: back off on rate limits, split the range in half if the node says it is too wide. */
+export async function logsInRange(client: PublicClient, from: bigint, to: bigint, attempt = 0): Promise<RawLog[]> {
+  try {
+    return await client.getLogs({ address: VAULT_ADDRESS, fromBlock: from, toBlock: to })
+  } catch (error) {
+    if (isRateLimit(error) && attempt < MAX_ATTEMPTS) {
+      await sleep(400 * 2 ** attempt)
+      return logsInRange(client, from, to, attempt + 1)
+    }
+    if (isRangeTooLarge(error) && to > from) {
+      const mid = from + (to - from) / 2n
+      return [...(await logsInRange(client, from, mid)), ...(await logsInRange(client, mid + 1n, to))]
+    }
+    throw error
+  }
+}
 
 /** Fetches every vault event since deployment, in block-range chunks so public RPC limits are respected. */
 export async function fetchVaultLogs(client: PublicClient): Promise<LedgerEntry[]> {
   const latest = await client.getBlockNumber()
-  const raw = []
+  const raw: RawLog[] = []
   for (let from = VAULT_DEPLOY_BLOCK; from <= latest; from += CHUNK) {
     const to = from + CHUNK - 1n < latest ? from + CHUNK - 1n : latest
-    raw.push(...(await client.getLogs({ address: VAULT_ADDRESS, fromBlock: from, toBlock: to })))
+    raw.push(...(await logsInRange(client, from, to)))
   }
   const parsed = parseEventLogs({ abi: vaultAbi, logs: raw })
 

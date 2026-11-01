@@ -62,6 +62,16 @@ Deployed on Arc Testnet (USDC 0x3600000000000000000000000000000000000000):
 - ImpactVault 0xa0ed7b2ebe39093fff85d64c530d17a897939d06 (deploy block 70028821) is **stranded**. It was deployed through Arc Studio's hosted deployer (EOA 0x8792161a120924A6c04791D3C4a576C4c93A4C2B via CREATE2 factory 0xa3039A54856ed74B5AEc999EeF3fc954Ab010Cf6), and its owner was set to a generated wallet 0x6A1e1c6De242E90579287D22fdf87ae472B29754 whose key was only ever in a git-ignored `.env` that no longer exists. That owner has nonce 0 and a zero USDC balance, so it can neither be recovered nor pay Arc gas: every `onlyOwner` function on that vault is permanently unreachable, including `transferOwnership`. It still holds 1.0 test USDC of principal. Depositors can still `withdraw()`/`claim()` because those are permissionless; nothing else works.
 - Lesson: on Arc, gas is paid in USDC, so an admin address must hold USDC and its key must be stored somewhere durable (`secrets`, not `.env`). Prefer making the deploying signer the admin.
 
+## Arc Mainnet demo (2026-11-01)
+
+- Chain 5042, explorer https://explorer.arc.io. Base fee ~20 gwei, so a USDC transfer costs about 0.001 USDC and an ImpactVault deploy about 0.054 USDC.
+- MockYieldStrategy 0x4575af36401119405ae4b8c67369c22c41bfb51d (demo, unaudited, holds only dust). Vaults: r1 0x67f62f2bf77c50907fd503eaf47829a1848cfb39, r2 0x1be966b6755737d99190e21f20af4e2ba0775d14, r3 0xa4dc3f921003f44870a6f3097449c67fdcbcfdbe (deploy block 28952345; the app's mainnet build). 0x19543c9a99ec1861ba4a97e33a28fe195c5c988e expired unused. All are settled and hold no USDC. All five are source-verified (exact match) through Sourcify (`POST https://sourcify.dev/server/v2/verify/5042/<address>` with the standard JSON input). Arc Explorer shows them. The explorer's own verification API is behind a Cloudflare bot check, and Etherscan's Arc support needs a paid plan.
+- The owner is the admin (`DEV_ETH_PRIVATE_KEY`). Fallback cause = donation receiver (`DONATION_RECEIVE_PK`). Actors use `ACTOR_A_PK` / `ACTOR_B_PK`.
+- `scripts/mainnet-demo.ts` drove everything and logs to `submission/mainnet-tx-log.json`, which is also its resume state: never delete it before a re-run. The write-up is `submission/mainnet.md`; clips are in `submission/clips/` (`submission/` is git-ignored).
+- Frontend: `VITE_CHAIN=arc` selects mainnet. `.env.mainnet.local` holds the round 3 values; use `vite --mode mainnet`.
+- Vercel production (https://arc-impact-vault.vercel.app) is deployed with the CLI (`vercel deploy --prod`) from the working tree. Its production env vars are the mainnet values in `.env.mainnet.local`; removing `VITE_CHAIN` reverts it to testnet.
+- Lesson: the admin's liquid USDC must cover yield plus every deploy in a round before recycled funds come back. Each spare deploy eats into that margin.
+
 ## ImpactVault frontend (live, contract-backed)
 
 - Spec lives in `ui-refs/` (and `context/ImpactVault-UIUX-Specification/`); where it describes sponsor lots, allocation or evidence review, the deployed contract is the source of truth (no such features on-chain).

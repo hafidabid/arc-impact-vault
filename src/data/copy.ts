@@ -1,9 +1,9 @@
 /** Product copy. Keep wording aligned with the content rules in the UI specification. */
 export const COPY = {
   brand: 'ImpactVault',
-  heroTitle: 'Your deposit. A clearer path to impact.',
+  heroTitle: 'Give the interest. Keep the money.',
   heroBody:
-    'Deposit USDC for a fixed term and get your principal back at maturity. The yield the vault earns in the meantime is donated to causes approved by the vault owner.',
+    'Lock your USDC for a fixed term and get your full deposit back at the end. The interest it earns goes to causes like hunger relief and forest-fire recovery, and every transfer is public.',
   principalLabel: 'Deposited principal',
   riskLine:
     'Principal is not insured or guaranteed. Smart-contract, strategy, token and network risks remain.',
