@@ -33,7 +33,7 @@ export function ActivityList({ entries, onSelect }: { entries: readonly LedgerEn
 
 export function EntryDetail({ entry, onClose }: { entry: LedgerEntry | null; onClose: () => void }) {
   return (
-    <Sheet open={entry !== null} onClose={onClose} title={entry ? KIND_LABEL[entry.kind] : ''} description="Recorded by the vault contract. This is an on-chain record.">
+    <Sheet open={entry !== null} onClose={onClose} title={entry ? KIND_LABEL[entry.kind] : ''} description="A permanent on-chain record from the vault contract.">
       {entry ? (
         <dl className="space-y-3">
           <Definition term="Operation ID">

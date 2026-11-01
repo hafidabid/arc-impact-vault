@@ -15,7 +15,7 @@ import { Timeline } from '@/components/vault/Timeline'
 import { COPY } from '@/data/copy'
 import { cx } from '@/lib/cx'
 
-const STEP_TITLES = ['Separate accounting', 'Wallet and network', 'Vault terms'] as const
+const STEP_TITLES = ['How funds are held', 'Wallet and network', 'Vault terms'] as const
 
 function Progress({ step }: { step: number }) {
   return (
@@ -48,17 +48,17 @@ function StepOne() {
         <div className="rounded-card bg-forest p-5 text-ivory">
           <Landmark aria-hidden className="mb-3 h-6 w-6 text-sage" />
           <h3 className="font-semibold">Your principal</h3>
-          <p className="t-small mt-1 text-ivory/90">What you deposit. It is recorded under your wallet and is yours to claim back at maturity.</p>
+          <p className="t-small mt-1 text-ivory/90">The amount you deposit. It is recorded against your wallet and returned to you at maturity.</p>
         </div>
         <div className="relative overflow-hidden rounded-card border border-gold bg-gold/25 p-5 pl-7">
           <div aria-hidden className="pattern-sponsor absolute inset-y-0 left-0 w-3 bg-gold" />
           <Coins aria-hidden className="mb-3 h-6 w-6 text-forest" />
           <h3 className="font-semibold">The vault&apos;s yield</h3>
-          <p className="t-small mt-1">Whatever the strategy earns above total deposits. It is reserved for approved causes and is never credited to you.</p>
+          <p className="t-small mt-1">Everything the strategy earns above total deposits. It is reserved for approved causes and never credited to individual depositors.</p>
         </div>
       </div>
       <Callout tone="warn" title="Before you continue">
-        {COPY.riskLine} If the strategy returns less than total deposits, withdrawals are paid back pro rata. You can browse the public pages without connecting.
+        {COPY.riskLine} If the strategy returns less than total deposits, every depositor is repaid pro rata.
       </Callout>
     </div>
   )
@@ -81,7 +81,7 @@ function StepTwo() {
   return (
     <div className="space-y-4">
       <p className="prose-reading text-ink/90">
-        Connect a wallet so ImpactVault can show your balances. Connecting does not request any spending approval. Each deposit asks you to review and approve an exact amount separately.
+        Connect a wallet to view your balances. Connecting grants no spending access; each deposit asks you to approve one exact amount.
       </p>
       <ul className="divide-y divide-ink/10 rounded-card border border-ink/15">
         {items.map((item) => (
@@ -119,10 +119,10 @@ function StepThree() {
   const now = useNow()
   return (
     <div className="space-y-4">
-      <p className="prose-reading text-ink/90">Your deposit is locked for a fixed term. These are the vault&apos;s dates, read from the contract.</p>
+      <p className="prose-reading text-ink/90">Deposits are held for a fixed term. These are the vault&apos;s key dates, read directly from the contract.</p>
       <div className="rounded-card border border-ink/15 p-4">{snapshot.status === 'ready' ? <Timeline vault={snapshot.data} now={now} /> : <Skeleton className="h-40" />}</div>
       <Callout tone="info" title="Who controls what">
-        The vault owner approves causes and decides when yield is sent. The owner can also pause new deposits and, in an emergency, shut the vault down early. The owner cannot spend your principal.
+        The vault owner approves causes and decides when yield is donated. The owner can pause new deposits and, in an emergency, close the vault early. The owner can never access depositor principal.
       </Callout>
     </div>
   )
@@ -154,7 +154,7 @@ export default function OnboardingPage() {
       <Progress step={step} />
       <div className="card animate-rise">
         <h1 ref={headingRef} tabIndex={-1} className="t-page mb-5 outline-none">
-          {step === 1 ? 'How your funds stay accounted for separately' : step === 2 ? 'Connect your wallet' : 'Review the vault terms'}
+          {step === 1 ? 'Your principal and its yield are kept separate' : step === 2 ? 'Connect your wallet' : 'Review the vault terms'}
         </h1>
         {step === 1 ? <StepOne /> : step === 2 ? <StepTwo /> : <StepThree />}
 
@@ -173,7 +173,7 @@ export default function OnboardingPage() {
           <div className="flex flex-col gap-2 sm:flex-row">
             {step === 2 ? (
               <Link to="/impact" className="btn btn-ghost">
-                Keep browsing without connecting
+                Continue without a wallet
               </Link>
             ) : null}
             {step < 3 ? (
@@ -183,7 +183,7 @@ export default function OnboardingPage() {
               </button>
             ) : (
               <button type="button" className="btn btn-primary" onClick={() => void navigate('/deposit')}>
-                Open deposit
+                Go to deposit
                 <ArrowRight aria-hidden className="h-4 w-4" />
               </button>
             )}

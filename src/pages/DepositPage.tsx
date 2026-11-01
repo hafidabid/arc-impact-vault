@@ -98,10 +98,10 @@ function DepositForm() {
 
       <aside className="space-y-4">
         <Callout tone="info" title="What happens to your deposit">
-          Your USDC goes into the vault, which invests it in its yield strategy. You get your principal back after maturity. The vault&apos;s yield is not credited to you; it is sent to causes approved by the owner.
+          Your USDC is invested through the vault&apos;s yield strategy and returned to you as principal after maturity. The yield is not credited to you; it is donated to approved causes.
         </Callout>
         <Callout tone="warn" title="Risks">
-          {COPY.riskLine} Deposits cannot be withdrawn before maturity unless the owner triggers an emergency shutdown.
+          {COPY.riskLine} Deposits cannot be withdrawn before maturity unless the vault owner initiates an emergency shutdown.
         </Callout>
       </aside>
 
@@ -114,7 +114,7 @@ function DepositForm() {
               </Definition>
               <Definition term="Network">{CHAIN.name}</Definition>
               <Definition term="Token">USDC · 6 decimals</Definition>
-              <Definition term="Custody destination">
+              <Definition term="Vault contract">
                 <AddressLink address={VAULT_ADDRESS} />
               </Definition>
               <Definition term="Yield strategy">
@@ -124,7 +124,7 @@ function DepositForm() {
               <Definition term="Minimum strategy shares">{preview === undefined ? 'Checking…' : minSharesFor(preview).toString()}</Definition>
             </dl>
             <Callout tone="info">
-              The yield is not credited to you. At maturity you can claim {fmtUsdc(amount)} USDC back, subject to the strategy returning at least total deposits.
+              Yield is not credited to you. At maturity you can withdraw {fmtUsdc(amount)} USDC, provided the strategy returns at least the total deposited.
             </Callout>
 
             <ol className="space-y-3">
@@ -133,7 +133,7 @@ function DepositForm() {
                   {approveReady ? <Check aria-hidden className="h-4 w-4 text-forest" /> : null}1. Approve exactly {fmtUsdc(amount)} USDC
                 </p>
                 <p className="t-small text-ink/80">
-                  {approveReady && !needsApproval && approval.tx.stage !== 'confirmed' ? 'Already approved for this amount.' : 'Lets the vault pull this deposit and nothing more.'}
+                  {approveReady && !needsApproval && approval.tx.stage !== 'confirmed' ? 'Already approved for this amount.' : 'Authorises the vault to collect this deposit and nothing more.'}
                 </p>
                 {needsApproval && approval.tx.stage !== 'confirmed' ? (
                   <button type="button" className="btn btn-primary mt-3" disabled={busy || session.wrongNetwork} onClick={() => void runApprove()}>
@@ -152,7 +152,7 @@ function DepositForm() {
                   </button>
                 ) : null}
                 <div className="mt-3">
-                  <TxPanel tx={deposit.tx} onRecheck={deposit.recheck} onDismiss={deposit.reset} success={`Your principal is now recorded in the vault. Yield is not credited to you.`} />
+                  <TxPanel tx={deposit.tx} onRecheck={deposit.recheck} onDismiss={deposit.reset} success="Deposit confirmed. Your principal is now recorded in the vault." />
                 </div>
               </li>
             </ol>
@@ -167,7 +167,7 @@ export default function DepositPage() {
   usePageTitle('Deposit')
   return (
     <>
-      <PageHeader title="Deposit USDC" description="Deposit before the deadline. Your principal is claimable after maturity." />
+      <PageHeader title="Deposit USDC" description="Deposit before the deadline. Your principal can be withdrawn after maturity." />
       <div className="mb-6">
         <SessionNotices />
       </div>

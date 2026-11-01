@@ -16,7 +16,7 @@ export function AdminGate({ children }: { children: (ctx: { owner: `0x${string}`
   if (!session.isConnected) {
     return (
       <EmptyState icon={<ShieldAlert className="h-6 w-6" />} title="Connect the vault owner wallet" action={<ConnectButton />}>
-        The admin workspace is for the vault owner. Connecting does not request any spending approval.
+        The admin workspace is reserved for the vault owner. Connecting grants no spending access.
       </EmptyState>
     )
   }

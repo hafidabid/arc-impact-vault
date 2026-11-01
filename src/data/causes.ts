@@ -17,10 +17,10 @@ export function describeCause(address: Address, fallbackCause: Address): CauseIn
   if (label) return { address, name: label.name, purpose: label.purpose, isFallback, labelled: true }
   return {
     address,
-    name: isFallback ? 'Fallback cause' : `Approved cause ${shortAddress(address)}`,
+    name: isFallback ? 'Default cause' : `Approved cause ${shortAddress(address)}`,
     purpose: isFallback
-      ? 'Receives any yield the owner has not distributed once the grace period after settlement has passed.'
-      : 'An address the vault owner has approved to receive yield. No description has been published for it.',
+      ? 'Receives any yield the vault owner has not donated by the end of the grace period after settlement.'
+      : 'Approved by the vault owner to receive yield. Its profile has not been published yet.',
     isFallback,
     labelled: false,
   }

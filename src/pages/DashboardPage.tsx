@@ -36,7 +36,7 @@ function Dashboard() {
 
   return (
     <>
-      <PageHeader title="Your vault" description="Your principal and the vault it sits in, read live from the contract." />
+      <PageHeader title="Your vault" description="Your principal and the vault’s status, live from the contract." />
       <div className="mb-6 space-y-3">
         <SessionNotices />
         {account.status === 'error' ? <SyncError onRetry={account.refetch} /> : null}
@@ -48,7 +48,7 @@ function Dashboard() {
           tone="primary"
           label="Deposited principal"
           value={principal}
-          note={principal !== undefined && vault ? `${shareOfVault(principal, vault.totalPrincipal)}% of the vault's principal. Not insured or guaranteed.` : undefined}
+          note={principal !== undefined && vault ? `${shareOfVault(principal, vault.totalPrincipal)}% of total principal. Not insured or guaranteed.` : undefined}
         />
         <div className="card">
           <div className="flex items-center justify-between gap-3">
@@ -91,7 +91,7 @@ function Dashboard() {
               : canDeposit(phase)
                 ? 'Deposits are open.'
                 : canClaim(phase)
-                  ? 'You can claim your principal.'
+                  ? 'Your principal is ready to withdraw.'
                   : `${PHASE_LABEL[phase]}. See the status for dates.`}
           </p>
         </section>
@@ -100,7 +100,7 @@ function Dashboard() {
       {principal === 0n && vault && phase && canDeposit(phase) ? (
         <div className="mt-6">
           <Callout tone="info" title="You have not deposited yet">
-            Deposit USDC to start. Your principal comes back at maturity; the yield the vault earns goes to approved causes.
+            Deposit USDC to begin. Your principal is returned at maturity, and the yield the vault earns is donated to approved causes.
           </Callout>
         </div>
       ) : null}
@@ -118,7 +118,7 @@ function Dashboard() {
         />
         {ledger.status === 'loading' ? <Skeleton className="h-24" /> : null}
         {ledger.status === 'error' ? <SyncError onRetry={ledger.refetch} /> : null}
-        {ledger.status === 'ready' && mine.length === 0 ? <EmptyState title="No activity yet">Deposits and withdrawals from this wallet appear here.</EmptyState> : null}
+        {ledger.status === 'ready' && mine.length === 0 ? <EmptyState title="No activity yet">Deposits and withdrawals from this wallet will appear here.</EmptyState> : null}
         {mine.length > 0 ? <ActivityList entries={mine.slice(0, 5)} onSelect={setSelected} /> : null}
       </section>
       <EntryDetail entry={selected} onClose={() => setSelected(null)} />

@@ -23,10 +23,10 @@ export function Timeline({ vault, now }: { vault: VaultSnapshot; now: bigint }) 
       hint: vault.isSettled ? 'Strategy redeemed. Principal and yield are reserved.' : 'Happens when anyone settles at or after maturity, or on claim.',
     },
     {
-      title: 'Fallback sweep opens',
+      title: 'Default-cause transfer opens',
       at: sweepAt,
       done: sweepAt !== null && now >= sweepAt,
-      hint: 'If yield is still undistributed after the grace period, anyone can send it to the fallback cause.',
+      hint: 'Any yield not yet donated after the grace period can be sent by anyone to the default cause.',
     },
   ]
   return (

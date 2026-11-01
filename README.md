@@ -82,7 +82,8 @@ Live on Arc Mainnet (chain ID `5042`) since 2026-11-01. The app at **https://arc
 | ImpactVault (round 2) | [`0x1be966b6755737d99190e21f20af4e2ba0775d14`](https://explorer.arc.io/address/0x1be966b6755737d99190e21f20af4e2ba0775d14) |
 | Yield strategy (demo MockYieldStrategy) | [`0x4575af36401119405ae4b8c67369c22c41bfb51d`](https://explorer.arc.io/address/0x4575af36401119405ae4b8c67369c22c41bfb51d) |
 | Owner / admin | [`0x922De363B0eB317bE610f4FC707eF994A011EDE3`](https://explorer.arc.io/address/0x922De363B0eB317bE610f4FC707eF994A011EDE3) |
-| Approved cause (fallback) | [`0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec`](https://explorer.arc.io/address/0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec) |
+| ImpactVault Hunger Relief Fund (default cause) | [`0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec`](https://explorer.arc.io/address/0x4Ad77b6e1399779AeeB5E95172F7bC13314E87ec) |
+| ImpactVault Forest Restoration Fund | [`0xC09eF1438D424606269E2CCc67deAA70F325C04b`](https://explorer.arc.io/address/0xC09eF1438D424606269E2CCc67deAA70F325C04b) |
 | Round 3 deploy block | `28952345` |
 | USDC | `0x3600000000000000000000000000000000000000` |
 
@@ -94,7 +95,9 @@ In each round:
 2. The admin added simulated yield to the strategy.
 3. The vault was settled at maturity.
 4. Both depositors withdrew their **full principal**.
-5. The admin donated all realised yield to the approved cause.
+5. The admin donated all realised yield to the ImpactVault Hunger Relief Fund.
+
+After the rounds, the admin approved a second cause, the ImpactVault Forest Restoration Fund ([tx](https://explorer.arc.io/tx/0x2054f6652b047633bd02f8698e738d978e6b326f24fe26e4cdc578b783619f70)).
 
 | Round | Deposits | Realised yield donated | Donation tx |
 | --- | --- | --- | --- |

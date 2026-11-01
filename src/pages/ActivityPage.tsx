@@ -72,7 +72,7 @@ function ActivityView() {
       {ledger.status === 'error' ? <SyncError onRetry={ledger.refetch} /> : null}
       {ledger.status === 'ready' && entries.length === 0 ? (
         <EmptyState title="No activity to show">
-          Deposits and withdrawals from your connected wallet appear here, along with the vault&apos;s yield transfers to causes.
+          Deposits and withdrawals from your connected wallet will appear here, along with the vault&apos;s donations to approved causes.
         </EmptyState>
       ) : null}
       {entries.length > 0 ? (
@@ -92,7 +92,7 @@ export default function ActivityPage() {
   usePageTitle('Activity')
   return (
     <>
-      <PageHeader title="Activity" description="Your deposits and withdrawals, and the yield the vault has sent to causes." />
+      <PageHeader title="Activity" description="Your deposits and withdrawals, and every donation the vault has made to approved causes." />
       <ConnectGate purpose="Connect a wallet to see your activity.">
         <ActivityView />
       </ConnectGate>

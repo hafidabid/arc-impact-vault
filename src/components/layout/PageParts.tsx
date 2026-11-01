@@ -75,7 +75,7 @@ export function ConnectGate({ children, purpose }: { children: ReactNode; purpos
   if (!isConnected) {
     return (
       <EmptyState title="Connect your wallet" action={<ConnectButton />}>
-        {purpose} Connecting does not request any spending approval. You can keep browsing public pages without connecting.
+        {purpose} Connecting grants no spending access, and public pages remain available without a wallet.
       </EmptyState>
     )
   }
@@ -98,7 +98,7 @@ export function SessionNotices() {
             </button>
           }
         >
-          Your wallet is on a different network than the one ImpactVault uses ({CHAIN.name}). Transactions are blocked until you switch.
+          Your wallet is connected to a different network. ImpactVault runs on {CHAIN.name}; switch networks to continue.
         </Callout>
       ) : null}
     </div>
@@ -111,14 +111,14 @@ export function SyncError({ onRetry }: { onRetry: () => void }) {
     <Callout
       live
       tone="warn"
-      title="Could not load on-chain data"
+      title="Unable to load on-chain data"
       action={
         <button type="button" className="btn btn-secondary" onClick={onRetry}>
           Try again
         </button>
       }
     >
-      Figures are hidden instead of shown as zero, because an unknown balance is not the same as an empty one.
+      Figures are withheld until they can be confirmed, so a balance is never shown as zero by mistake.
     </Callout>
   )
 }

@@ -34,7 +34,7 @@ function Causes() {
   return (
     <div className="space-y-10">
       <section aria-labelledby="approved">
-        <SectionHeading id="approved" title="Approved causes" description="Yield can only be sent to these addresses. Removing a cause does not change past transfers." />
+        <SectionHeading id="approved" title="Approved causes" description="Yield can be donated only to these addresses. Removing a cause leaves past donations on record." />
         <ul className="divide-y divide-ink/10 rounded-card border border-ink/15">
           {rows.map((row) => (
             <li key={row.info.address} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
@@ -43,7 +43,7 @@ function Causes() {
                 <AddressLink address={row.info.address} full />
               </div>
               <div className="flex items-center gap-3">
-                {row.info.isFallback ? <Chip tone="accent">Fallback · cannot be removed</Chip> : null}
+                {row.info.isFallback ? <Chip tone="accent">Default cause · cannot be removed</Chip> : null}
                 <span className="num t-small">{row.distributed === undefined ? '…' : `${fmtUsdc(row.distributed)} USDC sent`}</span>
               </div>
             </li>
@@ -133,14 +133,14 @@ function Causes() {
             <AdminAction
               scope="remove-cause"
               title="Remove cause"
-              description="Stops future yield going to this address. The fallback cause can never be removed."
+              description="Stops future yield going to this address. The default cause can never be removed."
               buttonLabel="Remove cause"
               args={isAddress(removeTarget) ? { ...base, functionName: 'removeCause', args: [removeTarget] } : undefined}
               disabledReason={isAddress(removeTarget) ? undefined : 'Select a cause.'}
             />
           </div>
         </div>
-        <Callout tone="info">Pool names and purposes shown to the public are configured with the app, not on-chain. The contract only stores addresses.</Callout>
+        <Callout tone="info">Cause names and missions shown to the public are configured with the app, not on-chain. The contract stores addresses only.</Callout>
       </section>
     </div>
   )
@@ -150,7 +150,7 @@ export default function AdminCausesPage() {
   usePageTitle('Admin causes')
   return (
     <>
-      <PageHeader eyebrow="Admin" title="Causes and yield" description="Approve recipients and send realised yield to them." />
+      <PageHeader eyebrow="Admin" title="Causes and yield" description="Approve causes and donate realised yield to them." />
       <AdminGate>{() => <Causes />}</AdminGate>
     </>
   )

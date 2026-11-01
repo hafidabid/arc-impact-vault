@@ -41,7 +41,7 @@ function Account() {
             </Link>
           ) : null}
         </div>
-        <p className="t-small mt-3 text-ink/80">Disconnecting ends this session only. It does not move funds or cancel a pending transaction.</p>
+        <p className="t-small mt-3 text-ink/80">Disconnecting ends this session. Your funds and any pending transaction are unaffected.</p>
       </section>
       ) : (
         <section className="card" aria-labelledby="wallet">
@@ -51,7 +51,7 @@ function Account() {
       )}
 
       <section className="card" aria-labelledby="contracts">
-        <SectionHeading id="contracts" title="Contracts" description="Verify these addresses before you transact." />
+        <SectionHeading id="contracts" title="Contracts" description="Confirm these addresses before transacting." />
         <dl className="space-y-3">
           <Definition term="ImpactVault">
             <AddressLink address={VAULT_ADDRESS} full />
@@ -71,7 +71,7 @@ function Account() {
             {CHAIN.name} (chain ID {CHAIN.id})
           </Definition>
         </dl>
-        <p className="t-small mt-3 text-ink/80">Account settings cannot edit balances or transaction history. Those come only from the contract.</p>
+        <p className="t-small mt-3 text-ink/80">Balances and history are read directly from the contract and cannot be edited here.</p>
       </section>
 
       <section className="card" id="disclosures" aria-labelledby="disclosures-h">
@@ -86,10 +86,10 @@ function Account() {
       <section className="card" aria-labelledby="privacy">
         <SectionHeading id="privacy" title="Data and privacy" />
         <p className="t-small prose-reading text-ink/90">
-          ImpactVault reads public blockchain data for your wallet address. It has no accounts and keeps no profile. The only thing stored in your browser is the hash of a transaction you have just sent, so a refresh can still show its status.
+          ImpactVault reads public blockchain data for your wallet address. There are no accounts and no stored profiles. Your browser keeps only the hash of a transaction you have just sent, so its status survives a page refresh.
         </p>
       </section>
-      <Callout tone="info">Anyone can read deposits and withdrawals on-chain, including the wallet address that made them.</Callout>
+      <Callout tone="info">Deposits and withdrawals are public on-chain records, including the wallet address that made them.</Callout>
     </div>
   )
 }

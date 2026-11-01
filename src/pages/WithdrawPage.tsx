@@ -41,7 +41,7 @@ function WithdrawForm() {
   if (principal === 0n && !justClaimed) {
     return (
       <EmptyState title="No principal to withdraw">
-        This wallet has no principal in the vault. If you already withdrew, the receipt is in your activity.
+        This wallet has no principal in the vault. If you have already withdrawn, the transaction is listed in your activity.
       </EmptyState>
     )
   }
@@ -81,7 +81,7 @@ function WithdrawForm() {
             </dl>
             {!vault.isSettled && !inKind ? (
               <Callout tone="info">
-                The vault has not settled yet. Withdrawing settles it first, which costs a little more in fees. The final amount depends on what the strategy returns.
+                The vault has not settled yet. Your withdrawal will settle it first, at a slightly higher network fee. The final amount depends on what the strategy returns.
               </Callout>
             ) : null}
             {shortfall ? (
@@ -102,12 +102,12 @@ function WithdrawForm() {
             ) : null}
           </section>
         )}
-        <TxPanel tx={claim.tx} onRecheck={claim.recheck} onDismiss={claim.reset} success="Your principal has been paid out. The receipt records a token transfer from the vault." />
+        <TxPanel tx={claim.tx} onRecheck={claim.recheck} onDismiss={claim.reset} success="Withdrawal confirmed. Your principal has been returned to your wallet." />
       </div>
       <div className="card h-fit">
         <h2 className="t-section mb-4">Vault timeline</h2>
         <Timeline vault={vault} now={now} />
-        <p className="t-small mt-4 text-ink/80">The vault pays out your whole principal in one withdrawal. You are never required to donate, and nothing is deducted for causes.</p>
+        <p className="t-small mt-4 text-ink/80">Your full principal is returned in a single withdrawal. Nothing is deducted for donations; only the vault&apos;s yield is given.</p>
       </div>
     </div>
   )

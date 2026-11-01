@@ -1,6 +1,5 @@
 import { isAddress } from 'viem'
 import { useParams } from 'react-router-dom'
-import { KIND_LABEL } from '@/chain/logs'
 import type { LedgerEntry } from '@/chain/logs'
 import { useCauses } from '@/chain/useCauses'
 import { AddressLink } from '@/components/chain/AddressLink'
@@ -27,7 +26,7 @@ export default function CausePage() {
   if (!row) {
     return (
       <EmptyState title="This address is not an approved cause">
-        It is either not approved by the vault owner, or it has been removed. Removing a cause does not change past transfers.
+        It has not been approved by the vault owner, or its approval has been withdrawn. Past donations remain on record.
       </EmptyState>
     )
   }
@@ -39,33 +38,33 @@ export default function CausePage() {
 
   return (
     <>
-      <PageHeader title={row.info.name} back={{ to: '/impact', label: 'All causes' }} description={row.info.purpose} actions={row.info.isFallback ? <Chip tone="accent">Fallback cause</Chip> : null} />
+      <PageHeader title={row.info.name} back={{ to: '/impact', label: 'All causes' }} description={row.info.purpose} actions={row.info.isFallback ? <Chip tone="accent">Default cause</Chip> : null} />
       <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
         <section className="card" aria-labelledby="totals">
           <h2 id="totals" className="t-section">
-            Yield transferred
+            Total yield received
           </h2>
           <p className="t-balance mt-3">
             {row.distributed === undefined ? <Skeleton className="h-10 w-40" /> : <>{fmtUsdc(row.distributed)} <span className="text-lg font-medium text-ink/75">USDC</span></>}
           </p>
-          <p className="t-small mt-2 text-ink/80">Sum of YieldDistributed events to this address. It records token movement only.</p>
+          <p className="t-small mt-2 text-ink/80">The total of every donation from the vault to this cause, as recorded on-chain.</p>
           <dl className="mt-5 space-y-3 border-t border-ink/10 pt-4">
             <Definition term="Recipient address">
               <AddressLink address={row.info.address} full />
             </Definition>
-            <Definition term="Source of funds">Realised vault yield, never depositor principal</Definition>
-            <Definition term="Label status">{row.info.labelled ? 'Name and purpose published by ImpactVault' : 'No name published for this address'}</Definition>
+            <Definition term="Funded by">Yield earned by the vault. Depositor principal is never used.</Definition>
+            <Definition term="Status">{row.info.labelled ? 'Approved cause' : 'Approved cause · profile pending'}</Definition>
           </dl>
         </section>
-        <Callout tone="info" title="What this page does and does not show">
-          {COPY.transferNote} ImpactVault does not verify the recipient, its beneficiaries or its delivery of relief, and a cause name is not an accreditation.
+        <Callout tone="info" title="Accountability">
+          {COPY.transferNote} Approval reflects the vault owner’s on-chain decision and is not a third-party accreditation.
         </Callout>
       </div>
       <section className="mt-10" aria-labelledby="history">
-        <SectionHeading id="history" title="Transfer history" description={`${KIND_LABEL['yield-distribution']}s and approval changes for this address.`} />
+        <SectionHeading id="history" title="Donation history" description="Donations to this cause and changes to its approval." />
         {ledger.status === 'loading' ? <Skeleton className="h-32" /> : null}
         {ledger.status === 'error' ? <SyncError onRetry={ledger.refetch} /> : null}
-        {ledger.status === 'ready' && history.length === 0 ? <EmptyState title="No transfers yet">Yield has not been sent to this cause.</EmptyState> : null}
+        {ledger.status === 'ready' && history.length === 0 ? <EmptyState title="No donations yet">This cause has not received a donation from the vault yet.</EmptyState> : null}
         {history.length > 0 ? <ActivityList entries={history} onSelect={setSelected} /> : null}
       </section>
       <EntryDetail entry={selected} onClose={() => setSelected(null)} />

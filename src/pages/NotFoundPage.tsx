@@ -14,7 +14,7 @@ export default function NotFoundPage() {
             Back to home
           </Link>
           <Link to="/impact" className="btn btn-secondary">
-            See the causes
+            View approved causes
           </Link>
         </>
       }

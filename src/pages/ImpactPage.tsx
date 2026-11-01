@@ -12,7 +12,7 @@ export default function ImpactPage() {
     <>
       <PageHeader
         title="Impact explorer"
-        description="Every cause below is an address the vault owner has approved on-chain. Yield can only be sent to these addresses."
+        description="Every cause below has been approved on-chain by the vault owner. Yield can be donated only to these recipients, and every donation is publicly recorded."
       />
       {snapshot.status === 'error' ? <SyncError onRetry={snapshot.refetch} /> : null}
       {ledger.status === 'error' ? (
@@ -22,7 +22,7 @@ export default function ImpactPage() {
       ) : null}
       {rows && rows.length === 0 ? (
         <EmptyState icon={<HeartHandshake className="h-6 w-6" />} title="No causes are approved yet">
-          The vault owner has not approved a cause to receive yield.
+          Causes appear here once the vault owner approves them on-chain.
         </EmptyState>
       ) : null}
       <div className="grid gap-4 md:grid-cols-2">

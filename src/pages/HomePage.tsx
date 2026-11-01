@@ -17,38 +17,38 @@ const STEPS = [
   {
     icon: Landmark,
     title: 'Deposit USDC',
-    body: 'Put in any amount before the deposit deadline. Your deposit stays recorded under your wallet.',
+    body: 'Deposit any amount before the deadline. Your principal is recorded against your wallet.',
   },
   {
     icon: Sprout,
-    title: 'The vault earns interest',
-    body: 'While it is locked, your deposit earns yield for the vault as a whole. It never touches your principal.',
+    title: 'The vault earns yield',
+    body: 'During the term, deposits are invested through the vault’s yield strategy. Yield accrues to the vault, separate from your principal.',
   },
   {
     icon: HandHeart,
-    title: 'You get your money back',
-    body: 'At maturity you withdraw your full deposit. The interest goes to a cause, and you can follow it on-chain.',
+    title: 'Principal returned, yield donated',
+    body: 'At maturity you withdraw your full principal. The yield is donated to approved causes, with every transfer on public record.',
   },
 ]
 
 const PROMISES = [
-  { icon: ShieldCheck, title: 'Your deposit comes back', body: 'Principal is paid out first, in full, as long as the yield strategy does not lose value.' },
-  { icon: Target, title: 'Only the interest is given', body: 'Yield can only go to causes the vault owner approved on-chain beforehand.' },
-  { icon: Eye, title: 'Every transfer is public', body: 'Deposits, approvals and donations are all on-chain events anyone can check.' },
+  { icon: ShieldCheck, title: 'Principal comes first', body: 'Depositors are repaid in full before any yield is donated, provided the strategy holds its value.' },
+  { icon: Target, title: 'Only yield is donated', body: 'Yield can be sent only to causes the vault owner has approved on-chain in advance.' },
+  { icon: Eye, title: 'Transparent by design', body: 'Every deposit, approval and donation is a public record on Arc that anyone can audit.' },
 ]
 
-const EXAMPLES = [
+const FOCUS_AREAS = [
   {
     image: '/images/projects/food-relief.jpg',
     imageAlt: 'Volunteers packing fresh food and essentials into donation boxes',
-    title: 'Help put food on the table',
-    body: 'Yield can fund meals and food parcels for families who need them. Your deposit stays in the vault; the interest supports hunger relief.',
+    title: 'Hunger relief',
+    body: 'Funding meals and food parcels for families facing food insecurity, so that saving and giving no longer compete.',
   },
   {
     image: '/images/projects/forest-recovery.jpg',
     imageAlt: 'Volunteers holding young saplings ready for planting',
-    title: 'Help forests grow back',
-    body: 'Yield can support recovery after forest fires, helping communities restore forests in places like Kalimantan.',
+    title: 'Forest restoration',
+    body: 'Supporting reforestation and community recovery after forest fires, including in Kalimantan.',
   },
 ]
 
@@ -76,7 +76,7 @@ export default function HomePage() {
               See where it goes
             </Link>
           </div>
-          <p className="t-small mt-4 max-w-md text-ink/80">No wallet needed to look around. Connecting never asks to spend anything.</p>
+          <p className="t-small mt-4 max-w-md text-ink/80">Browse freely without a wallet. Connecting never grants spending access.</p>
         </div>
       </section>
 
@@ -96,10 +96,10 @@ export default function HomePage() {
         </ul>
       </section>
 
-      <section aria-labelledby="examples-heading">
-        <SectionHeading id="examples-heading" title="Your yield helps fund projects like these" description="The interest your deposit earns goes to approved causes. Here’s the kind of work it can fund." />
+      <section aria-labelledby="focus-heading">
+        <SectionHeading id="focus-heading" title="Where your yield goes" description="ImpactVault directs yield to two focus areas. Every recipient is approved on-chain before it can receive funds." />
         <ul className="grid gap-4 md:grid-cols-2">
-          {EXAMPLES.map((item) => (
+          {FOCUS_AREAS.map((item) => (
             <li key={item.title} className="card overflow-hidden !p-0">
               <img
                 src={item.image}
@@ -111,22 +111,17 @@ export default function HomePage() {
                 className="aspect-[16/10] w-full object-cover"
               />
               <div className="p-4 md:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg font-semibold text-forest">{item.title}</h3>
-                  <span className="rounded-full border border-ink/30 px-2.5 py-0.5 text-xs font-medium text-ink/80">Example</span>
-                </div>
+                <h3 className="text-lg font-semibold text-forest">{item.title}</h3>
                 <p className="t-small prose-reading mt-1.5 text-ink/85">{item.body}</p>
               </div>
             </li>
           ))}
         </ul>
-        <p className="t-small prose-reading mt-3 text-ink/80">
-          These are example projects, shown with stock photography. Yield goes only to causes approved by the vault owner. See the current recipients below.
-        </p>
+        <p className="t-small mt-3 text-ink/70">Photography is illustrative.</p>
       </section>
 
       <section aria-labelledby="how-heading">
-        <SectionHeading id="how-heading" title="How it works" description="Three steps, each recorded as its own on-chain event." />
+        <SectionHeading id="how-heading" title="How it works" description="Three steps, each recorded on-chain." />
         <ol className="grid gap-4 md:grid-cols-3">
           {STEPS.map((step, index) => (
             <li key={step.title} className="card relative">
@@ -147,14 +142,14 @@ export default function HomePage() {
       </section>
 
       <section aria-labelledby="vault-heading">
-        <SectionHeading id="vault-heading" title="The vault right now" description="Read live from the contract." />
+        <SectionHeading id="vault-heading" title="The vault right now" description="Live figures from the vault contract on Arc." />
         <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
           <div className="grid gap-4 sm:grid-cols-2">
-            <BalanceCard label="Total deposited principal" value={vault?.totalPrincipal} note="Owed back to depositors. Not donated." />
+            <BalanceCard label="Total deposited principal" value={vault?.totalPrincipal} note="Held for repayment to depositors." />
             <BalanceCard
               label={vault?.isSettled ? 'Yield realised' : 'Estimated yield so far'}
               value={vault ? (vault.isSettled ? vault.yieldPool : vault.projectedYield) : undefined}
-              note={vault?.isSettled ? 'Earned by the vault and reserved for causes.' : 'An estimate, not a promise. Reserved for causes, not credited to depositors.'}
+              note={vault?.isSettled ? 'Earned by the vault and reserved for approved causes.' : 'Estimated, not guaranteed. Reserved for approved causes.'}
             />
           </div>
           <div className="card">
@@ -168,8 +163,8 @@ export default function HomePage() {
       <section aria-labelledby="causes-heading">
         <SectionHeading
           id="causes-heading"
-          title="Approved causes right now"
-          description="The addresses that can receive yield from this vault."
+          title="Approved causes"
+          description="The organisations eligible to receive yield from this vault."
           action={
             <Link to="/impact" className="btn btn-ghost">
               All causes

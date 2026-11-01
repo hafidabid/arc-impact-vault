@@ -117,7 +117,7 @@ function Overview() {
           <Definition term="Network">{CHAIN.name}</Definition>
           <Definition term="Vault"><AddressLink address={VAULT_ADDRESS} full /></Definition>
           <Definition term="Strategy"><AddressLink address={STRATEGY_ADDRESS} full /></Definition>
-          <Definition term="Fallback cause"><AddressLink address={v.fallbackCause} full /></Definition>
+          <Definition term="Default cause"><AddressLink address={v.fallbackCause} full /></Definition>
           <Definition term="Deposit deadline">{fmtUnixDateTime(v.depositDeadline)}</Definition>
           <Definition term="Maturity">{fmtUnixDateTime(v.maturity)}</Definition>
           <Definition term="Deposit cap">{isUnlimited(v.depositCap) ? 'Unlimited' : `${fmtUsdc(v.depositCap)} USDC`}</Definition>
@@ -146,9 +146,9 @@ function Overview() {
           />
           <AdminAction
             scope="sweep"
-            title="Sweep leftover yield to fallback cause"
-            description="After the grace period anyone can send undistributed yield to the fallback cause."
-            buttonLabel="Sweep to fallback"
+            title="Send remaining yield to default cause"
+            description="After the grace period, anyone can send yield that has not been donated to the default cause."
+            buttonLabel="Send to default cause"
             args={{ ...base, functionName: 'sweepYieldToFallback' }}
             disabledReason={!v.isSettled ? 'The vault has not settled.' : sweepAt !== null && now < sweepAt ? `Opens ${fmtUnixDateTime(sweepAt)}.` : v.yieldRemaining === 0n ? 'No yield left.' : undefined}
           />

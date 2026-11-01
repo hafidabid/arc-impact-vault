@@ -13,7 +13,7 @@ export function CauseCard({ cause, distributed }: { cause: CauseInfo; distribute
         <span aria-hidden className="flex h-11 w-11 items-center justify-center rounded-control bg-sage/35 text-forest">
           <HeartHandshake className="h-6 w-6" />
         </span>
-        {cause.isFallback ? <Chip tone="accent">Fallback</Chip> : null}
+        {cause.isFallback ? <Chip tone="accent">Default cause</Chip> : null}
       </div>
       <h3 className="mt-3 text-xl font-semibold text-forest">{cause.name}</h3>
       <p className="t-small prose-reading mt-1 text-ink/85">{cause.purpose}</p>
@@ -25,7 +25,7 @@ export function CauseCard({ cause, distributed }: { cause: CauseInfo; distribute
           </dd>
         </div>
         <div className="flex flex-wrap justify-between gap-x-4">
-          <dt className="t-small text-ink/80">Yield transferred</dt>
+          <dt className="t-small text-ink/80">Yield received</dt>
           <dd className="num font-medium">{distributed === undefined ? 'Loading…' : `${fmtUsdc(distributed)} USDC`}</dd>
         </div>
       </dl>
